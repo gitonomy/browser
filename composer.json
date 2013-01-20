@@ -1,0 +1,18 @@
+{
+    "name": "gitonomy/browser",
+    "require": {
+        "silex/silex": "dev-master",
+        "symfony/validator": "2.1.*",
+        "symfony/locale": "2.1.*",
+        "symfony/form": "2.1.*",
+        "twig/twig": ">=1.8,<2.0-dev",
+        "symfony/twig-bridge": "2.1.*",
+
+        "gitonomy/gitlib": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "Gitonomy\\Browser": "src"
+        }
+    }
+}

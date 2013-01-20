@@ -1,0 +1,33 @@
+span.git-author {
+    background-color: #ddeeff;
+    display: inline-block;
+    padding: 1px 5px;
+}
+
+.git-log-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.git-log {
+    position: relative;
+    z-index: 1;
+}
+
+.git-log-wrapper svg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.git-log thead th a,
+.git-log tfoot th a
+{
+    display: block;
+    background-color: #efefef;
+    font-weight: normal;
+    padding: 1em;
+}

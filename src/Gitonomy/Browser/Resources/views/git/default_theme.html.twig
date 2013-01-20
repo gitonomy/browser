@@ -1,0 +1,61 @@
+{% block log %}
+{% spaceless %}
+    <table class="git-log" {% if query_url %} data-per-page="{{ per_page }}" data-query-url="{{ query_url }}" {% endif %}data-offset="{{ log.offset }}" data-limit="{{ log.limit }}" data-total="{{ log.count }}">
+        {% if log.offset > 0 and query_url %}
+            {{ git_render('log_before', {log: log}) }}
+        {% endif %}
+        <tbody>
+            {{ git_log_rows(log) }}
+        </tbody>
+        {% if log.offset + log.limit < log.count %}
+            {{ git_render('log_after', {log: log}) }}
+        {% endif %}
+    </table>
+{% endspaceless %}
+{% endblock %}
+
+{% block log_before %}
+{% spaceless %}
+    <thead>
+        <tr>
+            <th colspan="2">
+                <a class="load-previous">Load previous</a>
+            </th>
+        </tr>
+    </thead>
+{% endspaceless %}
+{% endblock %}
+
+{% block log_after %}
+{% spaceless %}
+    <tfoot>
+        <tr>
+            <th colspan="2">
+                <a class="load-next">Load next</a>
+            </th>
+        </tr>
+    </tfoot>
+{% endspaceless %}
+{% endblock %}
+
+{% block log_rows %}
+{% spaceless %}
+    {% for commit in log %}
+        <tr {{ git_commit_attributes(commit) }}>
+            <td class="message">{{ commit.shortMessage }}</a></td>
+            <td>{{ git_author(commit) }}</td>
+        </tr>
+    {% endfor %}
+{% endspaceless %}
+{% endblock %}
+
+{% block author %}
+{% spaceless %}
+
+    <span class="git-author">
+        {# Gravatar #}
+        <img alt="Avatar of {{ name }}" width="{{ size }}" height="{{ size }}" src="http://www.gravatar.com/avatar/{{ email_md5 }}?s={{ size }}" />
+        {{- name -}}
+    </span>
+{% endspaceless %}
+{% endblock %}

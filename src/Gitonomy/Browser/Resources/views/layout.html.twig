@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title '' %}</title>
+        <link rel="stylesheet" href="/css/log.css" />
+    </head>
+    <body>
+        <h1><a href="{{ path('repositories') }}">browser</a></h1>
+        <hr />
+        {% block content '' %}
+        <hr />
+        <script type="text/javascript" src="/vendor/jquery-1.9.0.min.js"></script>
+        <script type="text/javascript" src="/js/log.js"></script>
+    </body>
+</html>
