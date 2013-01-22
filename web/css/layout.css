@@ -1,0 +1,10 @@
+.gitonomy-browser {
+    font-family: sans-serif;
+    width: 1024px;
+    margin: 0 auto;
+}
+
+.gitonomy-browser table.repository-list {
+    width: 100%;
+    text-align: right;
+}

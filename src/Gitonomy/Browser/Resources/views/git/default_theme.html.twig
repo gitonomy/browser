@@ -41,8 +41,12 @@
 {% block log_rows %}
 {% spaceless %}
     {% for commit in log %}
-        <tr {{ git_commit_attributes(commit) }}>
-            <td class="message">{{ commit.shortMessage }}</a></td>
+        <tr data-hash="{{ commit.hash }}" data-parents="{{ commit.parentHashes|join(' ') }}">
+            <td class="message">
+                <a href="{{ git_url(commit) }}">
+                {{ commit.shortMessage }}
+                </a>
+            </td>
             <td>{{ git_author(commit) }}</td>
         </tr>
     {% endfor %}
@@ -57,5 +61,14 @@
         <img alt="Avatar of {{ name }}" width="{{ size }}" height="{{ size }}" src="http://www.gravatar.com/avatar/{{ email_md5 }}?s={{ size }}" />
         {{- name -}}
     </span>
+{% endspaceless %}
+{% endblock %}
+
+{% block commit_header %}
+{% spaceless %}
+    <h2>{{ commit.subjectMessage }} {{ git_author(commit) }}</h2>
+    {% if commit.bodyMessage %}
+        <pre>{{ commit.bodyMessage }}</pre>
+    {% endif %}
 {% endspaceless %}
 {% endblock %}

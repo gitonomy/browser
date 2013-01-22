@@ -7,87 +7,75 @@ use Gitonomy\Git\Log;
 
 class GitExtension extends \Twig_Extension
 {
+    private $urlGenerator;
     private $themes;
 
-    public function __construct(array $themes = array())
+    public function __construct(GitUrlGeneratorInterface $urlGenerator, array $themes = array())
     {
-        $this->themes = $themes;
+        $this->urlGenerator = $urlGenerator;
+        $this->themes       = $themes;
     }
 
     public function getFunctions()
     {
         return array(
             new \Twig_SimpleFunction('git_author',            array($this, 'renderAuthor'),           array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('git_render',            array($this, 'renderBlock'),            array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('git_commit_attributes', array($this, 'renderCommitAttributes'), array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_commit_header',     array($this, 'renderCommitHeader'),     array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log',               array($this, 'renderLog'),              array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log_rows',          array($this, 'renderLogRows'),          array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_render',            array($this, 'renderBlock'),            array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_url',               array($this, 'getUrl')),
         );
     }
 
-    public function renderLog(\Twig_Environment $env, $value, array $options = array())
+    public function getUrl($value)
+    {
+        if ($value instanceof Commit) {
+            return $this->urlGenerator->generateCommitUrl($value);
+        } else {
+            throw new \InvalidArgumentException(sprintf('Unsupported type for URL generation: %s. Expected a Commit', is_object($value) ? get_class($value) : gettype($value)));
+        }
+    }
+
+    public function renderCommitHeader(\Twig_Environment $env, Commit $commit)
+    {
+        return $this->renderBlock($env, 'commit_header', array(
+            'commit' => $commit,
+        ));
+    }
+
+    public function renderLog(\Twig_Environment $env, Log $log, array $options = array())
     {
         $options = array_merge(array(
             'query_url' => null,
             'per_page'  => 20
         ), $options);
 
-        if (!$value instanceof Log) {
-            throw new \InvalidArgumentException('Unsupported type to render log. Expected a Log, got a '.(is_object($value) ? get_class($value) : gettype($value)));
-        }
-
         return $this->renderBlock($env, 'log', array(
-            'log'      => $value,
+            'log'      => $log,
             'query_url' => $options['query_url'],
-            'per_page' => 20
+            'per_page' => $options['per_page']
         ));
     }
 
-    public function renderCommitAttributes(\Twig_Environment $env, $value, array $options = array())
+    public function renderLogRows(\Twig_Environment $env, Log $log, array $options = array())
     {
-        if (!$value instanceof Commit) {
-            throw new \InvalidArgumentException('Unsupported type to render log. Expected a Commit, got a '.(is_object($value) ? get_class($value) : gettype($value)));
-        }
-
-        $attrs = array(
-            'data-hash' => $value->getHash(),
-            'data-parents' => implode(' ', $value->getParentHashes())
-        );
-
-        $result = array();
-        foreach ($attrs as $key => $val) {
-            $result[] = $key.'="'.htmlspecialchars($val, ENT_QUOTES).'"';
-        }
-
-        return implode(" ", $result);
-    }
-
-    public function renderLogRows(\Twig_Environment $env, $value, array $options = array())
-    {
-        if (!$value instanceof Log) {
-            throw new \InvalidArgumentException('Unsupported type to render log. Expected a Log, got a '.(is_object($value) ? get_class($value) : gettype($value)));
-        }
-
         return $this->renderBlock($env, 'log_rows', array(
-            'log'      => $value
+            'log'      => $log
         ));
     }
 
-    public function renderAuthor(\Twig_Environment $env, $value, array $options = array())
+    public function renderAuthor(\Twig_Environment $env, Commit $commit, array $options = array())
     {
         $options = array_merge(array(
             'size' => 15
         ), $options);
 
-        if (!$value instanceof Commit) {
-            throw new \InvalidArgumentException('Unsupported type to render author. Expected a Commit, got a '.(is_object($value) ? get_class($value) : gettype($value)));
-        }
-
         return $this->renderBlock($env, 'author', array(
-            'name'      => $value->getAuthorName(),
+            'name'      => $commit->getAuthorName(),
             'size'      => $options['size'],
-            'email'     => $value->getAuthorEmail(),
-            'email_md5' => md5($value->getAuthorEmail())
+            'email'     => $commit->getAuthorEmail(),
+            'email_md5' => md5($commit->getAuthorEmail())
         ));
     }
 
