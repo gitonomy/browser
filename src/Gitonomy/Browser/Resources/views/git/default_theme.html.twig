@@ -43,8 +43,11 @@
     {% for commit in log %}
         <tr data-hash="{{ commit.hash }}" data-parents="{{ commit.parentHashes|join(' ') }}">
             <td class="message">
+                {% for reference in commit.resolveReferences %}
+                    {{ git_render('reference_label', {reference: reference}) }}
+                {% endfor %}
                 <a href="{{ git_url(commit) }}">
-                {{ commit.shortMessage }}
+                    {{ commit.shortMessage }}
                 </a>
             </td>
             <td>{{ git_author(commit) }}</td>
@@ -70,5 +73,101 @@
     {% if commit.bodyMessage %}
         <pre>{{ commit.bodyMessage }}</pre>
     {% endif %}
+{% endspaceless %}
+{% endblock %}
+
+{% block diff %}
+{% spaceless %}
+    <div class="git-diff">
+        {{ git_render('diff_summary', {diff: diff}) }}
+
+        {% for i, file in diff.files %}
+            <div class="file" id="diff-file-{{ i }}">
+                {{ git_render('diff_file', {file: file}) }}
+            </div>
+        {% endfor %}
+{% endspaceless %}
+{% endblock %}
+
+{% block diff_summary %}
+    <ul class="summary">
+        {% for i,file in diff.files %}
+            <li>
+                <a href="#file-{{ i }}">
+                    {{ file.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+{% block diff_file %}
+{% spaceless %}
+        {% if file.oldName == file.newName and file.oldMode == file.newMode %}
+            <span class="file">{{ file.oldName }}</span>
+        {% elseif file.oldName == null %}
+            <span class="file">{{ file.newName }} ({{ file.newMode }})</span>
+        {% elseif file.newName == null %}
+            <span class="file deleted">{{ file.oldName }} ({{ file.oldMode }})</span>
+        {% elseif file.oldMode != file.newMode %}
+            <span class="changemod">{{ 'diff.label.file_mode_changed'|trans({'%old%': file.oldMode, '%new%': file.newMode}) }}</span>
+        {% else %}
+            <ul>
+                <li>{{ file.oldName }} ({{ file.oldMode }}) -&gt; {{ file.newName }} ({{ file.newMode }})</li>
+            </ul>
+        {% endif %}
+        {% if not file.binary %}
+            <div class="btn-group pull-right">
+                <a rel="tooltip" title="{{ 'label.button.old'|trans }}" class="btn btn-small show-old"><i class="icon-chevron-left"></i></a>
+                <a rel="tooltip" title="{{ 'label.button.diff'|trans }}" disabled="disabled" class="btn btn-small show-diff"><i class="icon-eye-close"></i></a>
+                <a rel="tooltip" title="{{ 'label.button.new'|trans }}" class="btn btn-small show-new"><i class="icon-chevron-right"></i></a>
+                {% if reference|default(null) and slug|default(null) %}
+                    <a rel="tooltip" data-placement="left" title="{{ 'label.button.full_file'|trans }}" class="btn btn-small" href="{{ path('project_tree', {slug: slug, reference: reference, path: file.name}) }}"><i class="icon-file"></i></a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </header>
+    <div class="file-changes">
+        {% for change in file.changes %}
+            {% if not loop.first %}
+                <tr><td class="skip" colspan="3">&nbsp;</td></tr>
+            {% endif %}
+            {% set old = change.rangeOldStart %}
+            {% set new = change.rangeNewStart %}
+            {%- for x, line in change.lines -%}
+                <tr class="{{ line[0] == 1 ? 'new' : line[0] == -1 ? 'old' : '' }}">
+                    <td class="old">{{ line[0] != 1 ? old : ' ' }}</td>
+                    <td class="new">{{ line[0] != -1 ? new : ' ' }}</td>
+                    <td class="{{ line[0] == 1 ? 'plus' : line[0] == -1 ? 'minus' : '' }} source"><pre>{{ line[1] }}</pre></td>
+                </tr>
+                {%- if line[0] == 1 -%}
+                    {%- set new = new + 1 -%}
+                {%- elseif line[0] == -1 -%}
+                    {%- set old = old + 1 -%}
+                {%- else -%}
+                    {%- set new = new + 1 -%}
+                    {%- set old = old + 1 -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {% endfor %}
+    </div>
+{% endspaceless %}
+{% endblock %}
+
+{% block reference_label %}
+{% spaceless %}
+    <a href="{{ git_url(reference) }}">
+        {% if reference is git_branch %}
+            <span class="ref branch{{ reference.isRemote ? ' remote' : '' }}">
+        {% elseif reference is git_tag %}
+            <span class="ref tag">
+        {% elseif reference is git_stash %}
+            <span class="ref stash">
+        {% else %}
+            <span class="ref">
+        {% endif %}
+        {{ reference.name }}
+        </span>
+    </a>
 {% endspaceless %}
 {% endblock %}

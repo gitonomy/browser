@@ -2,8 +2,15 @@
 
 namespace Gitonomy\Browser\Twig;
 
+use Gitonomy\Git\Diff\Diff;
+use Gitonomy\Git\Reference\Tag;
+use Gitonomy\Git\Reference\Branch;
+use Gitonomy\Git\Reference\Stash;
+use Gitonomy\Git\Blob;
 use Gitonomy\Git\Commit;
+use Gitonomy\Git\Reference;
 use Gitonomy\Git\Log;
+use Gitonomy\Git\Tree;
 
 class GitExtension extends \Twig_Extension
 {
@@ -21,6 +28,7 @@ class GitExtension extends \Twig_Extension
         return array(
             new \Twig_SimpleFunction('git_author',            array($this, 'renderAuthor'),           array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_commit_header',     array($this, 'renderCommitHeader'),     array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_diff',              array($this, 'renderDiff'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log',               array($this, 'renderLog'),              array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log_rows',          array($this, 'renderLogRows'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_render',            array($this, 'renderBlock'),            array('is_safe' => array('html'), 'needs_environment' => true)),
@@ -28,10 +36,25 @@ class GitExtension extends \Twig_Extension
         );
     }
 
+    public function getTests()
+    {
+        return array(
+            new \Twig_SimpleTest('git_blob', function ($blob) { return $blob instanceof Blob; }),
+            new \Twig_SimpleTest('git_commit', function ($commit) { return $commit instanceof Commit; }),
+            new \Twig_SimpleTest('git_log', function ($log) { return $log instanceof Log; }),
+            new \Twig_SimpleTest('git_tag', function ($tag) { return $tag instanceof Tag; }),
+            new \Twig_SimpleTest('git_branch', function ($branch) { return $branch instanceof Branch; }),
+            new \Twig_SimpleTest('git_stash', function ($stash) { return $stash instanceof Stash; }),
+            new \Twig_SimpleTest('git_tree', function ($tree) { return $tree instanceof Tree; })
+        );
+    }
+
     public function getUrl($value)
     {
         if ($value instanceof Commit) {
             return $this->urlGenerator->generateCommitUrl($value);
+        } elseif ($value instanceof Reference) {
+            return $this->urlGenerator->generateReferenceUrl($value);
         } else {
             throw new \InvalidArgumentException(sprintf('Unsupported type for URL generation: %s. Expected a Commit', is_object($value) ? get_class($value) : gettype($value)));
         }
@@ -52,16 +75,23 @@ class GitExtension extends \Twig_Extension
         ), $options);
 
         return $this->renderBlock($env, 'log', array(
-            'log'      => $log,
+            'log'       => $log,
             'query_url' => $options['query_url'],
-            'per_page' => $options['per_page']
+            'per_page'  => $options['per_page']
         ));
     }
 
     public function renderLogRows(\Twig_Environment $env, Log $log, array $options = array())
     {
         return $this->renderBlock($env, 'log_rows', array(
-            'log'      => $log
+            'log' => $log
+        ));
+    }
+
+    public function renderDiff(\Twig_Environment $env, Diff $diff, array $options = array())
+    {
+        return $this->renderBlock($env, 'diff', array(
+            'diff' => $diff
         ));
     }
 

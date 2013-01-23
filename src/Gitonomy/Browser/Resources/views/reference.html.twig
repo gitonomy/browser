@@ -1,0 +1,25 @@
+{% extends "layout.html.twig" %}
+
+{% block title reference.fullname %}
+
+{% block content %}
+    <h2>
+        <a href="{{ path('repository', {name: name}) }}">
+            {{ name }}
+        </a>
+        &gt;
+        {% if reference is git_branch %}
+            branch {{ reference.name }}
+        {% elseif reference is git_tag %}
+            tag {{ reference.name }}
+        {% elseif reference is git_stash %}
+            tag {{ reference.name }}
+        {% else %}
+            {{ reference.fullname }}
+        {% endif %}
+        <span style="float: right">
+            <a href="#">delete</a>
+        </span>
+    </h2>
+    {{ git_log(reference.log.setLimit(10)) }}
+{% endblock %}

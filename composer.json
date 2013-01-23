@@ -3,6 +3,7 @@
     "require": {
         "silex/silex": "dev-master",
         "symfony/validator": "2.1.*",
+        "symfony/translation": "2.1.*",
         "symfony/locale": "2.1.*",
         "symfony/form": "2.1.*",
         "twig/twig": ">=1.8,<2.0-dev",

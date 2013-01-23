@@ -1,5 +1,5 @@
 {
-    "hash": "764c998d47c7193b9ee977bd3d642545",
+    "hash": "97f61d9071ccb6936fea7221ad00ad18",
     "packages": [
         {
             "name": "gitonomy/gitlib",
@@ -7,12 +7,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/gitonomy/gitlib.git",
-                "reference": "601ae1dd2efa83ad957d0ed5c90ea9839abc0b6e"
+                "reference": "1ef8d5fdc3ba662cb5402ea703afb2afe84b66b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/gitonomy/gitlib/archive/601ae1dd2efa83ad957d0ed5c90ea9839abc0b6e.zip",
-                "reference": "601ae1dd2efa83ad957d0ed5c90ea9839abc0b6e",
+                "url": "https://github.com/gitonomy/gitlib/archive/1ef8d5fdc3ba662cb5402ea703afb2afe84b66b2.zip",
+                "reference": "1ef8d5fdc3ba662cb5402ea703afb2afe84b66b2",
                 "shasum": ""
             },
             "require": {
@@ -24,7 +24,7 @@
             "suggest": {
                 "psr/log": "Add some log"
             },
-            "time": "2013-01-20 17:27:34",
+            "time": "2013-01-22 14:32:57",
             "type": "library",
             "autoload": {
                 "psr-0": {
@@ -105,12 +105,12 @@
             "source": {
                 "type": "git",
                 "url": "git://github.com/fabpot/Silex.git",
-                "reference": "ca7e2dc4a5e2925e21e29895eb64714e675570dd"
+                "reference": "052caf2151dea1c7541569c5a864709eb5b91c56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/fabpot/Silex/archive/ca7e2dc4a5e2925e21e29895eb64714e675570dd.zip",
-                "reference": "ca7e2dc4a5e2925e21e29895eb64714e675570dd",
+                "url": "https://github.com/fabpot/Silex/archive/052caf2151dea1c7541569c5a864709eb5b91c56.zip",
+                "reference": "052caf2151dea1c7541569c5a864709eb5b91c56",
                 "shasum": ""
             },
             "require": {
@@ -122,7 +122,6 @@
                 "symfony/routing": ">=2.1,<2.3-dev"
             },
             "require-dev": {
-                "monolog/monolog": ">=1.0.0,<1.2-dev",
                 "twig/twig": ">=1.8.0,<2.0-dev",
                 "swiftmailer/swiftmailer": "4.2.*",
                 "doctrine/dbal": ">=2.2.0,<2.4.0-dev",
@@ -138,14 +137,16 @@
                 "symfony/translation": ">=2.1,<2.3-dev",
                 "symfony/twig-bridge": ">=2.1,<2.3-dev",
                 "symfony/validator": ">=2.1,<2.3-dev",
-                "symfony/serializer": ">=2.1,<2.3-dev"
+                "symfony/serializer": ">=2.1,<2.3-dev",
+                "symfony/dom-crawler": ">=2.1,<2.3-dev",
+                "symfony/options-resolver": ">=2.1,<2.3-dev"
             },
             "suggest": {
                 "symfony/browser-kit": ">=2.1,<2.3-dev",
                 "symfony/css-selector": ">=2.1,<2.3-dev",
                 "symfony/dom-crawler": ">=2.1,<2.3-dev"
             },
-            "time": "2013-01-20 08:24:37",
+            "time": "2013-01-23 22:07:06",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -570,6 +571,56 @@
                 }
             ],
             "description": "Symfony Routing Component",
+            "homepage": "http://symfony.com"
+        },
+        {
+            "name": "symfony/translation",
+            "version": "v2.1.7",
+            "target-dir": "Symfony/Component/Translation",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Translation",
+                "reference": "v2.1.7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/symfony/Translation/archive/v2.1.7.zip",
+                "reference": "v2.1.7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "symfony/config": "2.1.*",
+                "symfony/yaml": "2.1.*"
+            },
+            "suggest": {
+                "symfony/config": "2.1.*",
+                "symfony/yaml": "2.1.*"
+            },
+            "time": "2013-01-09 08:51:07",
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Translation": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Translation Component",
             "homepage": "http://symfony.com"
         },
         {

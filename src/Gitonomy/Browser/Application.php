@@ -8,6 +8,7 @@ use Silex\Application as BaseApplication;
 use Silex\Provider\FormServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
+use Silex\Provider\TranslationServiceProvider;
 
 use Gitonomy\Browser\Twig\GitExtension;
 
@@ -22,6 +23,8 @@ class Application extends BaseApplication
         // urlgen
         $this->register(new UrlGeneratorServiceProvider());
 
+        // translator
+        $this->register(new TranslationServiceProvider(), array('locale_fallback' => 'en'));
         // form
         $this->register(new FormServiceProvider());
 
@@ -93,5 +96,18 @@ class Application extends BaseApplication
             ));
         })->bind('commit');
 
+        /**
+         * Reference page
+         */
+        $this->get('/{name}/{fullname}', function (Application $app, $name, $fullname) {
+            if (!isset($app['repositories'][$name])) {
+                $app->abort(404, "Repository $name does not exist");
+            }
+
+            return $app['twig']->render('reference.html.twig', array(
+                'name'      => $name,
+                'reference' => $app['repositories'][$name]->getReferences()->get($fullname),
+            ));
+        })->bind('reference')->assert('fullname', 'refs\\/.*');
     }
 }
