@@ -7,7 +7,7 @@
         <tbody>
             {{ git_log_rows(log) }}
         </tbody>
-        {% if log.offset + log.limit < log.count %}
+        {% if log.offset + log.limit < log.count and query_url %}
             {{ git_render('log_after', {log: log}) }}
         {% endif %}
     </table>

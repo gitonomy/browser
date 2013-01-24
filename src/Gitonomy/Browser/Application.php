@@ -71,10 +71,23 @@ class Application extends BaseApplication
                 $app->abort(404, "Repository $name does not exist");
             }
 
-            $offset = $request->query->get('offset');
-            $limit  = $request->query->get('limit');
+            $repository = $app['repositories'][$name];
 
-            $log = $app['repositories'][$name]->getLog()->setOffset($offset)->setLimit($limit);
+            if ($reference = $request->query->get('reference')) {
+                $log = $repository->getReferences()->get($reference)->getLog();
+            } else {
+                $log = $repository->getLog();
+            }
+
+            if (null !== ($offset = $request->query->get('offset'))) {
+                $log->setOffset($offset);
+            }
+
+            if (null !== ($limit = $request->query->get('limit'))) {
+                $log->setLimit($limit);
+            }
+
+            $log = $repository->getLog()->setOffset($offset)->setLimit($limit);
 
             return $app['twig']->render('log_ajax.html.twig', array(
                 'name'       => $name,
@@ -109,5 +122,18 @@ class Application extends BaseApplication
                 'reference' => $app['repositories'][$name]->getReferences()->get($fullname),
             ));
         })->bind('reference')->assert('fullname', 'refs\\/.*');
+
+        /**
+         * Delete a reference
+         */
+        $this->post('/{name}/admin/delete-ref/{fullname}', function (Application $app, $name, $fullname) {
+            if (!isset($app['repositories'][$name])) {
+                $app->abort(404, "Repository $name does not exist");
+            }
+
+            $app['repositories'][$name]->getReferences()->get($fullname)->delete();
+
+            return $app->redirect($app['url_generator']->generate('repository', array('name' => $name)));
+        })->bind('reference_delete')->assert('fullname', 'refs\\/.*');
     }
 }

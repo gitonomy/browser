@@ -17,9 +17,11 @@
         {% else %}
             {{ reference.fullname }}
         {% endif %}
-        <span style="float: right">
-            <a href="#">delete</a>
-        </span>
+        <div style="float: right">
+            <form method="POST" action="{{ path('reference_delete', {name: name, fullname: reference.fullname}) }}">
+                <input type="submit" value="DELETE" />
+            </form>
+        </div>
     </h2>
-    {{ git_log(reference.log.setLimit(10)) }}
+    {{ git_log(reference.log.setLimit(10), {query_url: path('log_ajax', {name: name, fullname: reference.fullname})}) }}
 {% endblock %}

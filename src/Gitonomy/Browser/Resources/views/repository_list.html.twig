@@ -1,34 +1,18 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-    <table class="repository-list">
-        <thead>
-            <tr>
-                <th>repository name</th>
-                <th>branches</th>
-                <th>size</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for name, repository in app.repositories %}
-                <tr>
-                    <td>
-                        <a href="{{ path('repository', {name: name}) }}">
-                            {{ name }}
-                        </a>
-                    </td>
-                    <td>
-                        {% for branch in repository.references.localBranches %}
-                            <strong>{{ branch.name }}</strong>
-                            {{ git_author(branch.commit) }}
-                            {{ branch.commit.authorDate.format('d/m/Y') }}
-                            <br />
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {{ '%.2f Mb'|format(repository.size/1024) }}
-                </tr>
+    {% for name, repository in app.repositories %}
+        <h2><a href="{{ path('repository', {name: name}) }}">{{ name }}</a></h2>
+        <ul>
+            {% for branch in repository.references.localBranches %}
+                <li>
+                    <a href="{{ path('reference', {name: name, fullname: branch.fullname}) }}">
+                        <strong>{{ branch.name }}</strong>
+                    </a>
+                    {{ git_author(branch.commit) }}
+                    {{ branch.commit.authorDate.format('d/m/Y') }}
+                </li>
             {% endfor %}
-        </tbody>
-    </table>
+        </ul>
+    {% endfor %}
 {% endblock %}
