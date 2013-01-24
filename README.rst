@@ -4,11 +4,14 @@ Gitonomy browser
 Installation
 ------------
 
+You will need [composer](http://getcomposer.org/) to download dependancy.
+
 .. code-block:: bash
 
     git clone git@github.com:gitonomy/browser.git /path/to/install
     cd /path/to/install
     cp config_dist.php config.php
+    php composer.phar install
 
 Edit ``config.php`` and modify array to return instances of ``Repository`` objects on each of your projects:
 
