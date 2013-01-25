@@ -11,6 +11,7 @@ use Gitonomy\Git\Commit;
 use Gitonomy\Git\Reference;
 use Gitonomy\Git\Log;
 use Gitonomy\Git\Tree;
+use Gitonomy\Git\Repository;
 
 use Gitonomy\Browser\Routing\GitUrlGeneratorInterface;
 
@@ -28,6 +29,7 @@ class GitExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
+            new \Twig_SimpleFunction('git_repository_name',   array($this, 'renderRepositoryName'),   array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('git_author',            array($this, 'renderAuthor'),           array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_commit_header',     array($this, 'renderCommitHeader'),     array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_diff',              array($this, 'renderDiff'),             array('is_safe' => array('html'), 'needs_environment' => true)),
@@ -49,6 +51,23 @@ class GitExtension extends \Twig_Extension
             new \Twig_SimpleTest('git_stash', function ($stash) { return $stash instanceof Stash; }),
             new \Twig_SimpleTest('git_tree', function ($tree) { return $tree instanceof Tree; })
         );
+    }
+
+    public function renderRepositoryName($value)
+    {
+        if ($value instanceof Commit) {
+            $repository = $value->getRepository();
+        } elseif($value instanceof Repository) {
+            $repository = $value;
+        } else {
+            throw new \InvalidArgumentException(sprintf('Unsupported type for Repository name: %s', is_object($value) ? get_class($value) : gettype($value)));
+        }
+
+        if (!$repository->hasDescription()) {
+            return basename($repository->getPath());
+        }
+
+        return $repository->getDescription();
     }
 
     public function getUrl($value)

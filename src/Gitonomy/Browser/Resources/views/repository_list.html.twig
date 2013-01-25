@@ -4,11 +4,7 @@
     {% for name, repository in app.repositories %}
         <h2>
             <a href="{{ path('repository', {name: name}) }}">
-                {% if repository.hasDescription %}
-                    {{ repository.description }}
-                {% else %}
-                    {{ name }}
-                {% endif %}
+                {{ git_repository_name(repository) }}
             </a>
         </h2>
         <ul>

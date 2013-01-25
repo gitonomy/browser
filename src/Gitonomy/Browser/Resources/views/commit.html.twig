@@ -1,6 +1,8 @@
 {% extends "layout.html.twig" %}
 
-{% block title commit.subjectMessage ~ " (" ~ commit.shortHash ~ ")" %}
+{% block title -%}
+    {{ git_repository_name(commit) }} {{ commit.subjectMessage}} ({{ commit.shortHash }})
+{%- endblock %}
 
 {% block content %}
     {{ git_commit_header(commit) }}
