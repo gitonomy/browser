@@ -73,14 +73,21 @@ class Application extends BaseApplication
         $this['twig']->addExtension(new GitExtension($urlGenerator, array('git/default_theme.html.twig')));
 
         $this['controllers']->before(function (Request $request, Application $app) {
-            if ($request->attributes->has('repositoryName')) {
-                $repositoryName = $request->attributes->get('repositoryName');
-                if (!isset($app['repositories'][$repositoryName])) {
-                    $app->abort(404, "Repository $repositoryName does not exist");
-                }
-                $this['request_context']->setParameter('repositoryName', $repositoryName);
+            if ($request->attributes->has('repository')) {
+                $repository = $request->attributes->get('repository');
+                $this['request_context']->setParameter('repository', $repository);
             }
-         });
+        });
+
+        $this['controllers']->convert('repository', function ($repository, Request $request) use ($gitonomy) {
+            if (null !== $repository) {
+                if (!isset($gitonomy['repositories'][$repository])) {
+                    $gitonomy->abort(404, "Repository $repository does not exist");
+                }
+
+                return $gitonomy['repositories'][$repository];
+            }
+        });
 
         $this->registerActions();
     }
@@ -97,19 +104,16 @@ class Application extends BaseApplication
         /**
          * Landing page of a repository.
          */
-        $this->get('/{repositoryName}', function (Application $app, $repositoryName) {
+        $this->get('/{repository}', function (Application $app, $repository) {
             return $app['twig']->render('log.html.twig', array(
-                'repositoryName' => $repositoryName,
-                'repository'     => $app['repositories'][$repositoryName],
+                'repository' => $repository,
             ));
         })->bind('repository');
 
         /**
          * Ajax Log entries
          */
-        $this->get('/{repositoryName}/log-ajax', function (Request $request, Application $app, $repositoryName) {
-            $repository = $app['repositories'][$repositoryName];
-
+        $this->get('/{repository}/log-ajax', function (Request $request, Application $app, $repository) {
             if ($reference = $request->query->get('reference')) {
                 $log = $repository->getReferences()->get($reference)->getLog();
             } else {
@@ -127,41 +131,38 @@ class Application extends BaseApplication
             $log = $repository->getLog()->setOffset($offset)->setLimit($limit);
 
             return $app['twig']->render('log_ajax.html.twig', array(
-                'repositoryName' => $repositoryName,
-                'repository'     => $app['repositories'][$repositoryName],
-                'log'            => $log
+                'repository' => $repository,
+                'log'        => $log
             ));
         })->bind('log_ajax');
 
         /**
          * Commit page
          */
-        $this->get('/{repositoryName}/commit/{hash}', function (Application $app, $repositoryName, $hash) {
+        $this->get('/{repository}/commit/{hash}', function (Application $app, $repository, $hash) {
             return $app['twig']->render('commit.html.twig', array(
-                'repositoryName' => $repositoryName,
-                'repository'     => $app['repositories'][$repositoryName],
-                'commit'         => $app['repositories'][$repositoryName]->getCommit($hash),
+                'repository' => $repository,
+                'commit'     => $repository->getCommit($hash),
             ));
         })->bind('commit');
 
         /**
          * Reference page
          */
-        $this->get('/{repositoryName}/{fullname}', function (Application $app, $repositoryName, $fullname) {
+        $this->get('/{repository}/{fullname}', function (Application $app, $repository, $fullname) {
             return $app['twig']->render('reference.html.twig', array(
-                'repositoryName' => $repositoryName,
-                'repository'     => $app['repositories'][$repositoryName],
-                'reference'      => $app['repositories'][$repositoryName]->getReferences()->get($fullname),
+                'repository' => $repository,
+                'reference'  => $repository->getReferences()->get($fullname),
             ));
         })->bind('reference')->assert('fullname', 'refs\\/.*');
 
         /**
          * Delete a reference
          */
-        $this->post('/{repositoryName}/admin/delete-ref/{fullname}', function (Application $app, $repositoryName, $fullname) {
-            $app['repositories'][$repositoryName]->getReferences()->get($fullname)->delete();
+        $this->post('/{repository}/admin/delete-ref/{fullname}', function (Application $app, $repository, $fullname) {
+            $repository->getReferences()->get($fullname)->delete();
 
-            return $app->redirect($app['url_generator']->generate('repository', array('repositoryName' => $repositoryName)));
+            return $app->redirect($app['url_generator']->generate('repository', array('repository' => $repository)));
         })->bind('reference_delete')->assert('fullname', 'refs\\/.*');
     }
 }

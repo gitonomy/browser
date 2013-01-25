@@ -1,6 +1,6 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-    <h2>{{ repository.name }}</h2>
+    <h2>{{ repository }}</h2>
     {{ git_log(repository.log.setLimit(30), {query_url: path('log_ajax')}) }}
 {% endblock %}

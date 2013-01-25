@@ -26,4 +26,9 @@ class Repository extends BaseRepository
 
         return $this;
     }
+
+    public function __toString()
+    {
+        return $this->name;
+    }
 }
