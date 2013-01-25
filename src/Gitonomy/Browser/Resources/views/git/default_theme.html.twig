@@ -40,7 +40,17 @@
 
 {% block log_rows %}
 {% spaceless %}
+    {% set current_date = null %}
     {% for commit in log %}
+        {% set date = commit.authorDate.format('Y-m-d') %}
+        {% if date != current_date %}
+            <tr>
+                <th colspan="2">
+                    {{ date }}
+                </th>
+            </tr>
+            {% set current_date = date %}
+        {% endif %}
         <tr data-hash="{{ commit.hash }}" data-parents="{{ commit.parentHashes|join(' ') }}">
             <td class="message">
                 {% for reference in commit.resolveReferences %}

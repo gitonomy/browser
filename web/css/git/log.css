@@ -53,3 +53,13 @@ span.git-author {
     font-weight: normal;
     padding: 1em;
 }
+
+.git-log th, .git-log td {
+    line-height: 1.5em;
+}
+
+.git-log th {
+    text-align: left;
+    background-color: #e7e7e7;
+    line-height: 1.8em;
+}

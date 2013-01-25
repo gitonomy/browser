@@ -56,6 +56,25 @@ gitonomyLog = {
             svg.appendChild(circle);
         }
 
+        $table.find("th").each(function (i, e) {
+            var $cell = $(e);
+            var b = $cell.parent().prev().find("td.message").css('textIndent');
+            var a = $cell.parent().next().find("td.message").css('textIndent');
+            var indent;
+
+            if (a && b) {
+                indent = Math.max(parseInt(a), parseInt(b));
+            } else if (a) {
+                indent = a;
+            } else if (b) {
+                indent = b;
+            } else {
+                indent = 0;
+            }
+
+            $cell.css('text-indent', indent);
+        });
+
         if ($table.data('svg')) {
             var oldSvg = $table.data('svg');
             $(oldSvg).replaceWith(svg);
