@@ -11,14 +11,35 @@ use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\TranslationServiceProvider;
 
 use Gitonomy\Browser\Twig\GitExtension;
+use Gitonomy\Browser\Utils\RepositoriesFinder;
 
 class Application extends BaseApplication
 {
-    public function __construct(array $repositories, array $config = array())
+    /**
+     * Constructor.
+     *
+     * @param string $configFile The config file to load.
+     * @param array  $extraParam An array to overide params in configFile (usefull for test)
+     */
+    public function __construct($configFile, array $extraParam = array())
     {
-        parent::__construct($config);
+        parent::__construct($extraParam);
 
-        $this['repositories'] = $repositories;
+        $gitonomy = $this;
+
+        if (!file_exists($configFile)) {
+            throw new \RuntimeException(sprintf('Can not find config file: "%s"', $configFile));
+        }
+        require $configFile;
+
+        if (!isset($this['repositories'])) {
+            throw new \RuntimeException(sprintf('You should declare some repositories in the config file: "%s"', $configFile));
+        } elseif (is_string($this['repositories'])) {
+            $repoFinder = new RepositoriesFinder();
+            $this['repositories'] = $repoFinder->getRepositories($this['repositories']);
+        } elseif (!is_array($this['repositories'])) {
+            throw new \RuntimeException(sprintf('"$gitonomy" should be a array of Repository or a string in "%s"', $configFile));
+        }
 
         // urlgen
         $this->register(new UrlGeneratorServiceProvider());
