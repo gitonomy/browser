@@ -34,6 +34,7 @@ class GitExtension extends \Twig_Extension
             new \Twig_SimpleFunction('git_author',            array($this, 'renderAuthor'),           array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_commit_header',     array($this, 'renderCommitHeader'),     array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_diff',              array($this, 'renderDiff'),             array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_branches',          array($this, 'renderBranches'),         array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log',               array($this, 'renderLog'),              array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log_rows',          array($this, 'renderLogRows'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_render',            array($this, 'renderBlock'),            array('is_safe' => array('html'), 'needs_environment' => true)),
@@ -110,6 +111,13 @@ class GitExtension extends \Twig_Extension
     {
         return $this->renderBlock($env, 'diff', array(
             'diff' => $diff
+        ));
+    }
+
+    public function renderBranches(\Twig_Environment $env, Repository $repository)
+    {
+        return $this->renderBlock($env, 'branches', array(
+            'branches' => $repository->getReferences()->getBranches(),
         ));
     }
 

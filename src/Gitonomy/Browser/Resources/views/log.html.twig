@@ -2,5 +2,10 @@
 
 {% block content %}
     <h2>{{ repository }}</h2>
+
+    <h3>Branches:</h3>
+    {{ git_branches(repository) }}
+
+    <h3>Logs:</h3>
     {{ git_log(repository.log.setLimit(30), {query_url: path('log_ajax')}) }}
 {% endblock %}
