@@ -4,8 +4,8 @@
 
 {% block content %}
     <h2>
-        <a href="{{ path('repository', {name: name}) }}">
-            {{ name }}
+        <a href="{{ path('repository', {repositoryName: repositoryName}) }}">
+            {{ repositoryName }}
         </a>
         &gt;
         {% if reference is git_branch %}
@@ -18,10 +18,10 @@
             {{ reference.fullname }}
         {% endif %}
         <div style="float: right">
-            <form method="POST" action="{{ path('reference_delete', {name: name, fullname: reference.fullname}) }}">
+            <form method="POST" action="{{ path('reference_delete', {repositoryName: repositoryName, fullname: reference.fullname}) }}">
                 <input type="submit" value="DELETE" />
             </form>
         </div>
     </h2>
-    {{ git_log(reference.log.setLimit(10), {query_url: path('log_ajax', {name: name, fullname: reference.fullname})}) }}
+    {{ git_log(reference.log.setLimit(10), {query_url: path('log_ajax', {repositoryName: repositoryName, fullname: reference.fullname})}) }}
 {% endblock %}

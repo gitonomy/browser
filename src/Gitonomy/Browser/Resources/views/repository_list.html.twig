@@ -1,9 +1,9 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-    {% for name, repository in app.repositories %}
+    {% for name, repository in repositories %}
         <h2>
-            <a href="{{ path('repository', {name: name}) }}">
+            <a href="{{ path('repository', {repositoryName: name}) }}">
                 {{ git_repository_name(repository) }}
             </a>
         </h2>
@@ -11,7 +11,7 @@
             {% for branch in repository.references.localBranches %}
                 <li>
                     {% spaceless %}
-                        <a href="{{ path('reference', {name: name, fullname: branch.fullname}) }}">
+                        <a href="{{ path('reference', {repositoryName: name, fullname: branch.fullname}) }}">
                             <strong>{{ branch.name }}</strong>
                         </a>
                     {% endspaceless %}

@@ -73,32 +73,32 @@ class Application extends BaseApplication
          * Main page, showing all repositories.
          */
         $this->get('/', function (Application $app) {
-            return $app['twig']->render('repository_list.html.twig');
+            return $app['twig']->render('repository_list.html.twig', array('repositories' => $app['repositories']));
         })->bind('repositories');
 
         /**
          * Landing page of a repository.
          */
-        $this->get('/{name}', function (Application $app, $name) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
+        $this->get('/{repositoryName}', function (Application $app, $repositoryName) {
+            if (!isset($app['repositories'][$repositoryName])) {
+                $app->abort(404, "Repository $repositoryName does not exist");
             }
 
             return $app['twig']->render('log.html.twig', array(
-                'name'       => $name,
-                'repository' => $app['repositories'][$name]
+                'repositoryName' => $repositoryName,
+                'repository'     => $app['repositories'][$repositoryName]
             ));
         })->bind('repository');
 
         /**
          * Ajax Log entries
          */
-        $this->get('/{name}/log-ajax', function (Request $request, Application $app, $name) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
+        $this->get('/{repositoryName}/log-ajax', function (Request $request, Application $app, $repositoryName) {
+            if (!isset($app['repositories'][$repositoryName])) {
+                $app->abort(404, "Repository $repositoryName does not exist");
             }
 
-            $repository = $app['repositories'][$name];
+            $repository = $app['repositories'][$repositoryName];
 
             if ($reference = $request->query->get('reference')) {
                 $log = $repository->getReferences()->get($reference)->getLog();
@@ -117,50 +117,50 @@ class Application extends BaseApplication
             $log = $repository->getLog()->setOffset($offset)->setLimit($limit);
 
             return $app['twig']->render('log_ajax.html.twig', array(
-                'name'       => $name,
-                'log'        => $log
+                'repositoryName' => $repositoryName,
+                'log'            => $log
             ));
         })->bind('log_ajax');
 
         /**
          * Commit page
          */
-        $this->get('/{name}/commit/{hash}', function (Application $app, $name, $hash) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
+        $this->get('/{repositoryName}/commit/{hash}', function (Application $app, $repositoryName, $hash) {
+            if (!isset($app['repositories'][$repositoryName])) {
+                $app->abort(404, "Repository $repositoryName does not exist");
             }
 
             return $app['twig']->render('commit.html.twig', array(
-                'name'   => $name,
-                'commit' => $app['repositories'][$name]->getCommit($hash),
+                'repositoryName' => $repositoryName,
+                'commit'         => $app['repositories'][$repositoryName]->getCommit($hash),
             ));
         })->bind('commit');
 
         /**
          * Reference page
          */
-        $this->get('/{name}/{fullname}', function (Application $app, $name, $fullname) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
+        $this->get('/{repositoryName}/{fullname}', function (Application $app, $repositoryName, $fullname) {
+            if (!isset($app['repositories'][$repositoryName])) {
+                $app->abort(404, "Repository $repositoryName does not exist");
             }
 
             return $app['twig']->render('reference.html.twig', array(
-                'name'      => $name,
-                'reference' => $app['repositories'][$name]->getReferences()->get($fullname),
+                'repositoryName' => $repositoryName,
+                'reference'      => $app['repositories'][$repositoryName]->getReferences()->get($fullname),
             ));
         })->bind('reference')->assert('fullname', 'refs\\/.*');
 
         /**
          * Delete a reference
          */
-        $this->post('/{name}/admin/delete-ref/{fullname}', function (Application $app, $name, $fullname) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
+        $this->post('/{repositoryName}/admin/delete-ref/{fullname}', function (Application $app, $repositoryName, $fullname) {
+            if (!isset($app['repositories'][$repositoryName])) {
+                $app->abort(404, "Repository $repositoryName does not exist");
             }
 
-            $app['repositories'][$name]->getReferences()->get($fullname)->delete();
+            $app['repositories'][$repositoryName]->getReferences()->get($fullname)->delete();
 
-            return $app->redirect($app['url_generator']->generate('repository', array('name' => $name)));
+            return $app->redirect($app['url_generator']->generate('repository', array('repositoryName' => $repositoryName)));
         })->bind('reference_delete')->assert('fullname', 'refs\\/.*');
     }
 }

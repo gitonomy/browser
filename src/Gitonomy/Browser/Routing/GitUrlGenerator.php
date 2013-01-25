@@ -30,12 +30,12 @@ class GitUrlGenerator implements GitUrlGeneratorInterface
 
     public function generateCommitUrl(Commit $commit)
     {
-        return $this->generator->generate('commit', array('hash' => $commit->getHash(), 'name' => $this->getName($commit->getRepository())));
+        return $this->generator->generate('commit', array('hash' => $commit->getHash(), 'repositoryName' => $this->getName($commit->getRepository())));
     }
 
     public function generateReferenceUrl(Reference $reference)
     {
-        return $this->generator->generate('reference', array('fullname' => $reference->getFullname(), 'name' => $this->getName($reference->getRepository())));
+        return $this->generator->generate('reference', array('fullname' => $reference->getFullname(), 'repositoryName' => $this->getName($reference->getRepository())));
     }
 
     private function getName(Repository $repository)
