@@ -75,16 +75,18 @@ class Application extends BaseApplication
         $this['controllers']->before(function (Request $request, Application $app) {
             if ($request->attributes->has('repository')) {
                 $repository = $request->attributes->get('repository');
+                if (!isset($app['repositories'][$repository])) {
+                    $app->abort(404, "Repository $repository does not exist");
+                }
+
                 $this['request_context']->setParameter('repository', $repository);
+
+                $app['twig']->addGlobal('repository', $app['repositories'][$repository]);
             }
         });
 
         $this['controllers']->convert('repository', function ($repository, Request $request) use ($gitonomy) {
             if (null !== $repository) {
-                if (!isset($gitonomy['repositories'][$repository])) {
-                    $gitonomy->abort(404, "Repository $repository does not exist");
-                }
-
                 return $gitonomy['repositories'][$repository];
             }
         });
@@ -105,9 +107,7 @@ class Application extends BaseApplication
          * Landing page of a repository.
          */
         $this->get('/{repository}', function (Application $app, $repository) {
-            return $app['twig']->render('log.html.twig', array(
-                'repository' => $repository,
-            ));
+            return $app['twig']->render('log.html.twig');
         })->bind('repository');
 
         /**
@@ -131,7 +131,6 @@ class Application extends BaseApplication
             $log = $repository->getLog()->setOffset($offset)->setLimit($limit);
 
             return $app['twig']->render('log_ajax.html.twig', array(
-                'repository' => $repository,
                 'log'        => $log
             ));
         })->bind('log_ajax');
@@ -141,7 +140,6 @@ class Application extends BaseApplication
          */
         $this->get('/{repository}/commit/{hash}', function (Application $app, $repository, $hash) {
             return $app['twig']->render('commit.html.twig', array(
-                'repository' => $repository,
                 'commit'     => $repository->getCommit($hash),
             ));
         })->bind('commit');
@@ -151,7 +149,6 @@ class Application extends BaseApplication
          */
         $this->get('/{repository}/{fullname}', function (Application $app, $repository, $fullname) {
             return $app['twig']->render('reference.html.twig', array(
-                'repository' => $repository,
                 'reference'  => $repository->getReferences()->get($fullname),
             ));
         })->bind('reference')->assert('fullname', 'refs\\/.*');
