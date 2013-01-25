@@ -12,6 +12,8 @@ use Gitonomy\Git\Reference;
 use Gitonomy\Git\Log;
 use Gitonomy\Git\Tree;
 
+use Gitonomy\Browser\Routing\GitUrlGeneratorInterface;
+
 class GitExtension extends \Twig_Extension
 {
     private $urlGenerator;

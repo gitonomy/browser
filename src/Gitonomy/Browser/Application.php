@@ -11,6 +11,7 @@ use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\TranslationServiceProvider;
 
 use Gitonomy\Browser\Twig\GitExtension;
+use Gitonomy\Browser\Routing\GitUrlGenerator;
 use Gitonomy\Browser\Utils\RepositoriesFinder;
 
 class Application extends BaseApplication

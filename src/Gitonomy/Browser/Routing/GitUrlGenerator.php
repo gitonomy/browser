@@ -1,13 +1,12 @@
 <?php
 
-namespace Gitonomy\Browser;
+namespace Gitonomy\Browser\Routing;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 use Gitonomy\Git\Commit;
 use Gitonomy\Git\Repository;
 use Gitonomy\Git\Reference;
-use Gitonomy\Browser\Twig\GitUrlGeneratorInterface;
 
 class GitUrlGenerator implements GitUrlGeneratorInterface
 {
