@@ -2,7 +2,7 @@
 
 namespace Gitonomy\Browser\Utils;
 
-use Gitonomy\Git\Repository;
+use Gitonomy\Browser\Git\Repository;
 
 class RepositoriesFinder
 {
@@ -12,7 +12,7 @@ class RepositoriesFinder
         $repositories = array();
 
         foreach ($repositoriesTmp as $repo) {
-            $repositories[basename($repo)]  = new Repository($repo);
+            $repositories[] = new Repository($repo);
         }
 
         return $repositories;

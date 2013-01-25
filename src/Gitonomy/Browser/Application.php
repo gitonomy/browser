@@ -6,14 +6,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Silex\Application as BaseApplication;
 use Silex\Provider\FormServiceProvider;
+use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
-use Silex\Provider\TranslationServiceProvider;
 
-use Gitonomy\Git\Repository;
-
-use Gitonomy\Browser\Twig\GitExtension;
+use Gitonomy\Browser\Git\Repository;
 use Gitonomy\Browser\Routing\GitUrlGenerator;
+use Gitonomy\Browser\Twig\GitExtension;
 use Gitonomy\Browser\Utils\RepositoriesFinder;
 
 class Application extends BaseApplication
@@ -41,7 +40,16 @@ class Application extends BaseApplication
             $repoFinder = new RepositoriesFinder();
             $this['repositories'] = $repoFinder->getRepositories($this['repositories']);
         } elseif ($this['repositories'] instanceof Repository) {
-            $this['repositories'] = array(basename($this['repositories']->getPath()) => $this['repositories']);
+            $this['repositories'] = array($this['repositories']);
+        } elseif (is_array($this['repositories'])) {
+            foreach ($this['repositories'] as $key => $repository) {
+                if (!$repository instanceof Repository) {
+                    throw new \RuntimeException(sprintf('Value (%s) in $gitonomy[\'repositories\'] is not an instance of Repository in: "%s"', $key, $configFile));
+                }
+                if (is_string($key)) {
+                    $repository->setName($key);
+                }
+            }
         } elseif (!is_array($this['repositories'])) {
             throw new \RuntimeException(sprintf('"$gitonomy" should be a array of Repository or a string in "%s"', $configFile));
         }

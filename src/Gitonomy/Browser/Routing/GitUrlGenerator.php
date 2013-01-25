@@ -5,8 +5,9 @@ namespace Gitonomy\Browser\Routing;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 use Gitonomy\Git\Commit;
-use Gitonomy\Git\Repository;
 use Gitonomy\Git\Reference;
+
+use Gitonomy\Browser\Git\Repository;
 
 class GitUrlGenerator implements GitUrlGeneratorInterface
 {

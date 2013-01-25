@@ -10,7 +10,7 @@ class ApplicationTest extends WebTestCase
 
         return new Gitonomy\Browser\Application(
             $rootDir.'/config/test.php',
-            array('repositories' => array('browser' => new \Gitonomy\Git\Repository($rootDir)))
+            array('repositories' => array('browser' => new \Gitonomy\Browser\Git\Repository($rootDir)))
         );
     }
 

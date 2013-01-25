@@ -11,7 +11,8 @@ use Gitonomy\Git\Commit;
 use Gitonomy\Git\Reference;
 use Gitonomy\Git\Log;
 use Gitonomy\Git\Tree;
-use Gitonomy\Git\Repository;
+
+use Gitonomy\Browser\Git\Repository;
 
 use Gitonomy\Browser\Routing\GitUrlGeneratorInterface;
 
@@ -63,11 +64,7 @@ class GitExtension extends \Twig_Extension
             throw new \InvalidArgumentException(sprintf('Unsupported type for Repository name: %s', is_object($value) ? get_class($value) : gettype($value)));
         }
 
-        if (!$repository->hasDescription()) {
-            return basename($repository->getPath());
-        }
-
-        return $repository->getDescription();
+        return $repository->getName();
     }
 
     public function getUrl($value)
