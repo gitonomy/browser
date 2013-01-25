@@ -8,11 +8,16 @@ class RepositoriesFinder
 {
     public function getRepositories($path)
     {
-        $repositoriesTmp = $this->recurseDirectory($path);
         $repositories = array();
 
+        if (false !== strpos($path, '*')) {
+            $repositoriesTmp = glob($path);
+        } else {
+            $repositoriesTmp = $this->recurseDirectory($path);
+        }
+
         foreach ($repositoriesTmp as $repo) {
-            $repositories[] = new Repository($repo);
+            $repositories[basename($repo)] = new Repository($repo);
         }
 
         return $repositories;

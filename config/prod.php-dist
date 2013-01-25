@@ -7,3 +7,6 @@ $gitonomy['repositories'] = array(
 
 // or
 // $gitonomy['repositories'] = '/var/www/';
+
+// or
+// $gitonomy['repositories'] = '/var/www/dev-*';
