@@ -78,6 +78,7 @@ class Application extends BaseApplication
                 if (!isset($app['repositories'][$repositoryName])) {
                     $app->abort(404, "Repository $repositoryName does not exist");
                 }
+                $this['request_context']->setParameter('repositoryName', $repositoryName);
             }
          });
 
@@ -99,7 +100,7 @@ class Application extends BaseApplication
         $this->get('/{repositoryName}', function (Application $app, $repositoryName) {
             return $app['twig']->render('log.html.twig', array(
                 'repositoryName' => $repositoryName,
-                'repository'     => $app['repositories'][$repositoryName]
+                'repository'     => $app['repositories'][$repositoryName],
             ));
         })->bind('repository');
 
@@ -127,6 +128,7 @@ class Application extends BaseApplication
 
             return $app['twig']->render('log_ajax.html.twig', array(
                 'repositoryName' => $repositoryName,
+                'repository'     => $app['repositories'][$repositoryName],
                 'log'            => $log
             ));
         })->bind('log_ajax');
@@ -137,6 +139,7 @@ class Application extends BaseApplication
         $this->get('/{repositoryName}/commit/{hash}', function (Application $app, $repositoryName, $hash) {
             return $app['twig']->render('commit.html.twig', array(
                 'repositoryName' => $repositoryName,
+                'repository'     => $app['repositories'][$repositoryName],
                 'commit'         => $app['repositories'][$repositoryName]->getCommit($hash),
             ));
         })->bind('commit');
@@ -147,6 +150,7 @@ class Application extends BaseApplication
         $this->get('/{repositoryName}/{fullname}', function (Application $app, $repositoryName, $fullname) {
             return $app['twig']->render('reference.html.twig', array(
                 'repositoryName' => $repositoryName,
+                'repository'     => $app['repositories'][$repositoryName],
                 'reference'      => $app['repositories'][$repositoryName]->getReferences()->get($fullname),
             ));
         })->bind('reference')->assert('fullname', 'refs\\/.*');
