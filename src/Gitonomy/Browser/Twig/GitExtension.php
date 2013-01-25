@@ -57,7 +57,7 @@ class GitExtension extends \Twig_Extension
     {
         if ($value instanceof Commit) {
             $repository = $value->getRepository();
-        } elseif($value instanceof Repository) {
+        } elseif ($value instanceof Repository) {
             $repository = $value;
         } else {
             throw new \InvalidArgumentException(sprintf('Unsupported type for Repository name: %s', is_object($value) ? get_class($value) : gettype($value)));

@@ -1,7 +1,6 @@
 <?php
 
 use Silex\WebTestCase;
-use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
 
 class ApplicationTest extends WebTestCase
 {
