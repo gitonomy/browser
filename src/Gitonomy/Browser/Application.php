@@ -64,6 +64,15 @@ class Application extends BaseApplication
 
         $this['twig']->addExtension(new GitExtension($urlGenerator, array('git/default_theme.html.twig')));
 
+        $this['controllers']->before(function (Request $request, Application $app) {
+            if ($request->attributes->has('repositoryName')) {
+                $repositoryName = $request->attributes->get('repositoryName');
+                if (!isset($app['repositories'][$repositoryName])) {
+                    $app->abort(404, "Repository $repositoryName does not exist");
+                }
+            }
+         });
+
         $this->registerActions();
     }
 
@@ -80,10 +89,6 @@ class Application extends BaseApplication
          * Landing page of a repository.
          */
         $this->get('/{repositoryName}', function (Application $app, $repositoryName) {
-            if (!isset($app['repositories'][$repositoryName])) {
-                $app->abort(404, "Repository $repositoryName does not exist");
-            }
-
             return $app['twig']->render('log.html.twig', array(
                 'repositoryName' => $repositoryName,
                 'repository'     => $app['repositories'][$repositoryName]
@@ -94,10 +99,6 @@ class Application extends BaseApplication
          * Ajax Log entries
          */
         $this->get('/{repositoryName}/log-ajax', function (Request $request, Application $app, $repositoryName) {
-            if (!isset($app['repositories'][$repositoryName])) {
-                $app->abort(404, "Repository $repositoryName does not exist");
-            }
-
             $repository = $app['repositories'][$repositoryName];
 
             if ($reference = $request->query->get('reference')) {
@@ -126,10 +127,6 @@ class Application extends BaseApplication
          * Commit page
          */
         $this->get('/{repositoryName}/commit/{hash}', function (Application $app, $repositoryName, $hash) {
-            if (!isset($app['repositories'][$repositoryName])) {
-                $app->abort(404, "Repository $repositoryName does not exist");
-            }
-
             return $app['twig']->render('commit.html.twig', array(
                 'repositoryName' => $repositoryName,
                 'commit'         => $app['repositories'][$repositoryName]->getCommit($hash),
@@ -140,10 +137,6 @@ class Application extends BaseApplication
          * Reference page
          */
         $this->get('/{repositoryName}/{fullname}', function (Application $app, $repositoryName, $fullname) {
-            if (!isset($app['repositories'][$repositoryName])) {
-                $app->abort(404, "Repository $repositoryName does not exist");
-            }
-
             return $app['twig']->render('reference.html.twig', array(
                 'repositoryName' => $repositoryName,
                 'reference'      => $app['repositories'][$repositoryName]->getReferences()->get($fullname),
@@ -154,10 +147,6 @@ class Application extends BaseApplication
          * Delete a reference
          */
         $this->post('/{repositoryName}/admin/delete-ref/{fullname}', function (Application $app, $repositoryName, $fullname) {
-            if (!isset($app['repositories'][$repositoryName])) {
-                $app->abort(404, "Repository $repositoryName does not exist");
-            }
-
             $app['repositories'][$repositoryName]->getReferences()->get($fullname)->delete();
 
             return $app->redirect($app['url_generator']->generate('repository', array('repositoryName' => $repositoryName)));
