@@ -14,9 +14,9 @@ use Gitonomy\Browser\Twig\GitExtension;
 
 class Application extends BaseApplication
 {
-    public function __construct(array $repositories)
+    public function __construct(array $repositories, array $config = array())
     {
-        parent::__construct();
+        parent::__construct($config);
 
         $this['repositories'] = $repositories;
 
