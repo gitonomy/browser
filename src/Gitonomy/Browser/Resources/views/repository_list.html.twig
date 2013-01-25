@@ -2,15 +2,27 @@
 
 {% block content %}
     {% for name, repository in app.repositories %}
-        <h2><a href="{{ path('repository', {name: name}) }}">{{ name }}</a></h2>
+        <h2>
+            <a href="{{ path('repository', {name: name}) }}">
+                {% if repository.hasDescription %}
+                    {{ repository.description }}
+                {% else %}
+                    {{ name }}
+                {% endif %}
+            </a>
+        </h2>
         <ul>
             {% for branch in repository.references.localBranches %}
                 <li>
-                    <a href="{{ path('reference', {name: name, fullname: branch.fullname}) }}">
-                        <strong>{{ branch.name }}</strong>
-                    </a>
-                    {{ git_author(branch.commit) }}
-                    {{ branch.commit.authorDate.format('d/m/Y') }}
+                    {% spaceless %}
+                        <a href="{{ path('reference', {name: name, fullname: branch.fullname}) }}">
+                            <strong>{{ branch.name }}</strong>
+                        </a>
+                    {% endspaceless %}
+                    <small>
+                        {{ git_author(branch.commit) }}
+                        {{ branch.commit.authorDate.format('d/m/Y') }}
+                    </small>
                 </li>
             {% endfor %}
         </ul>

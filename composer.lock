@@ -7,12 +7,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/gitonomy/gitlib.git",
-                "reference": "57db5e210f2b37ff316ad69b27eff1613f6cf4cd"
+                "reference": "d0a21e9948be5926fe99150b5583e3a4b86f40c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/gitonomy/gitlib/archive/57db5e210f2b37ff316ad69b27eff1613f6cf4cd.zip",
-                "reference": "57db5e210f2b37ff316ad69b27eff1613f6cf4cd",
+                "url": "https://github.com/gitonomy/gitlib/archive/d0a21e9948be5926fe99150b5583e3a4b86f40c1.zip",
+                "reference": "d0a21e9948be5926fe99150b5583e3a4b86f40c1",
                 "shasum": ""
             },
             "require": {
@@ -24,7 +24,7 @@
             "suggest": {
                 "psr/log": "Add some log"
             },
-            "time": "2013-01-23 23:42:46",
+            "time": "2013-01-25 12:21:10",
             "type": "library",
             "autoload": {
                 "psr-0": {
@@ -105,12 +105,12 @@
             "source": {
                 "type": "git",
                 "url": "git://github.com/fabpot/Silex.git",
-                "reference": "a23c221e609a17dfc2923066e1680149b7678cf9"
+                "reference": "052caf2151dea1c7541569c5a864709eb5b91c56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/fabpot/Silex/archive/a23c221e609a17dfc2923066e1680149b7678cf9.zip",
-                "reference": "a23c221e609a17dfc2923066e1680149b7678cf9",
+                "url": "https://github.com/fabpot/Silex/archive/052caf2151dea1c7541569c5a864709eb5b91c56.zip",
+                "reference": "052caf2151dea1c7541569c5a864709eb5b91c56",
                 "shasum": ""
             },
             "require": {
@@ -146,7 +146,7 @@
                 "symfony/css-selector": ">=2.1,<2.3-dev",
                 "symfony/dom-crawler": ">=2.1,<2.3-dev"
             },
-            "time": "2013-01-25 06:59:19",
+            "time": "2013-01-23 22:07:06",
             "type": "library",
             "extra": {
                 "branch-alias": {

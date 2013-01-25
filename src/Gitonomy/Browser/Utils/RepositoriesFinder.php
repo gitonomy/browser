@@ -12,7 +12,7 @@ class RepositoriesFinder
         $repositories = array();
 
         foreach ($repositoriesTmp as $repo) {
-            $repositories[]  = new Repository($repo);
+            $repositories[basename($repo)]  = new Repository($repo);
         }
 
         return $repositories;
