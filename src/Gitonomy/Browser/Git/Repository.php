@@ -5,7 +5,6 @@ namespace Gitonomy\Browser\Git;
 use Gitonomy\Git\Repository as BaseRepository;
 use Psr\Log\LoggerInterface;
 
-
 class Repository extends BaseRepository
 {
     private $name;
@@ -17,11 +16,13 @@ class Repository extends BaseRepository
         $this->setName(basename($this->getPath()));
     }
 
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
 
         return $this;
