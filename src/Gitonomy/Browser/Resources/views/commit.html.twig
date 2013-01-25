@@ -1,6 +1,6 @@
 {% extends "layout.html.twig" %}
 
-{% block page_title commit.subjectMessage ~ " (" ~ commit.shortHash ~ ")" %}
+{% block title commit.subjectMessage ~ " (" ~ commit.shortHash ~ ")" %}
 
 {% block content %}
     {{ git_commit_header(commit) }}
