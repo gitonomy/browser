@@ -30,7 +30,8 @@ class Application extends BaseApplication
 
         // twig
         $this->register(new TwigServiceProvider(), array(
-            'twig.path' => __DIR__.'/Resources/views'
+            'twig.path' => __DIR__.'/Resources/views',
+            'debug'     => $this['debug'],
         ));
 
         $urlGenerator = new GitUrlGenerator($this['url_generator'], $this['repositories']);
