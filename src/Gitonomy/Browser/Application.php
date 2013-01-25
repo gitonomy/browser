@@ -10,6 +10,8 @@ use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\TranslationServiceProvider;
 
+use Gitonomy\Git\Repository;
+
 use Gitonomy\Browser\Twig\GitExtension;
 use Gitonomy\Browser\Routing\GitUrlGenerator;
 use Gitonomy\Browser\Utils\RepositoriesFinder;
@@ -38,6 +40,8 @@ class Application extends BaseApplication
         } elseif (is_string($this['repositories'])) {
             $repoFinder = new RepositoriesFinder();
             $this['repositories'] = $repoFinder->getRepositories($this['repositories']);
+        } elseif ($this['repositories'] instanceof Repository) {
+            $this['repositories'] = array($this['repositories']);
         } elseif (!is_array($this['repositories'])) {
             throw new \RuntimeException(sprintf('"$gitonomy" should be a array of Repository or a string in "%s"', $configFile));
         }
