@@ -41,7 +41,7 @@ class Application extends BaseApplication
             $repoFinder = new RepositoriesFinder();
             $this['repositories'] = $repoFinder->getRepositories($this['repositories']);
         } elseif ($this['repositories'] instanceof Repository) {
-            $this['repositories'] = array($this['repositories']);
+            $this['repositories'] = array(basename($this['repositories']->getPath()) => $this['repositories']);
         } elseif (!is_array($this['repositories'])) {
             throw new \RuntimeException(sprintf('"$gitonomy" should be a array of Repository or a string in "%s"', $configFile));
         }
