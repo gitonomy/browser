@@ -2,14 +2,14 @@
 
 namespace Gitonomy\Browser;
 
-use Symfony\Component\HttpFoundation\Request;
-
 use Silex\Application as BaseApplication;
 use Silex\Provider\FormServiceProvider;
 use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
+use Silex\Provider\ServiceControllerServiceProvider;
 
+use Gitonomy\Browser\Controller\MainController;
 use Gitonomy\Browser\EventListener\RepositoryListener;
 use Gitonomy\Browser\Git\Repository;
 use Gitonomy\Browser\Routing\GitUrlGenerator;
@@ -37,96 +37,70 @@ class Application extends BaseApplication
 
         $this->loadRepositories();
 
-        // urlgen
+        // Silex Service Provider
         $this->register(new UrlGeneratorServiceProvider());
-
-        // translator
         $this->register(new TranslationServiceProvider(), array('locale_fallback' => 'en'));
-        // form
         $this->register(new FormServiceProvider());
-
-        // twig
+        $this->register(new ServiceControllerServiceProvider());
         $this->register(new TwigServiceProvider(), array(
             'twig.path' => __DIR__.'/Resources/views',
             'debug'     => $this['debug'],
         ));
 
+        // Gitonomy\Browser Service Provider
         $urlGenerator = new GitUrlGenerator($this['url_generator'], $this['repositories']);
-
         $this['twig']->addExtension(new GitExtension($urlGenerator, array('git/default_theme.html.twig')));
 
+        // Register the Repository Listener
         $this['dispatcher']->addSubscriber(new RepositoryListener($this['request_context'], $this['twig'], $this['repositories']));
 
-        $this->registerActions();
+        // Declaring controller
+        $this['controller.main'] = $this->share(function() use ($gitonomy) {
+            return new MainController($gitonomy['twig'], $gitonomy['url_generator'], $gitonomy['repositories']);
+        });
+
+        $this->registerRouting();
     }
 
-    public function registerActions()
+    public function registerRouting()
     {
-        /**
-         * Main page, showing all repositories.
-         */
-        $this->get('/', function (Application $app) {
-            return $app['twig']->render('repository_list.html.twig', array('repositories' => $app['repositories']));
-        })->bind('repositories');
+        /** Main page, showing all repositories. */
+        $this
+            ->get('/', 'controller.main:listAction')
+            ->bind('repositories')
+        ;
 
-        /**
-         * Landing page of a repository.
-         */
-        $this->get('/{repository}', function (Application $app, $repository) {
-            return $app['twig']->render('log.html.twig');
-        })->bind('repository');
+        /** Landing page of a repository. */
+        $this
+            ->get('/{repository}', 'controller.main:showRepositoryAction')
+            ->bind('repository')
+        ;
 
-        /**
-         * Ajax Log entries
-         */
-        $this->get('/{repository}/log-ajax', function (Request $request, Application $app, $repository) {
-            if ($reference = $request->query->get('reference')) {
-                $log = $repository->getReferences()->get($reference)->getLog();
-            } else {
-                $log = $repository->getLog();
-            }
+        /** Ajax Log entries */
+        $this
+            ->get('/{repository}/log-ajax', 'controller.main:logAjaxAction')
+            ->bind('log_ajax')
+        ;
 
-            if (null !== ($offset = $request->query->get('offset'))) {
-                $log->setOffset($offset);
-            }
+        /** Commit page */
+        $this
+            ->get('/{repository}/commit/{hash}', 'controller.main:showCommitAction')
+            ->bind('commit')
+        ;
 
-            if (null !== ($limit = $request->query->get('limit'))) {
-                $log->setLimit($limit);
-            }
+        /** Reference page */
+        $this
+            ->get('/{repository}/{fullname}', 'controller.main:showReferenceAction')
+            ->bind('reference')
+            ->assert('fullname', 'refs\\/.*')
+        ;
 
-            $log = $repository->getLog()->setOffset($offset)->setLimit($limit);
-
-            return $app['twig']->render('log_ajax.html.twig', array(
-                'log'        => $log
-            ));
-        })->bind('log_ajax');
-
-        /**
-         * Commit page
-         */
-        $this->get('/{repository}/commit/{hash}', function (Application $app, $repository, $hash) {
-            return $app['twig']->render('commit.html.twig', array(
-                'commit'     => $repository->getCommit($hash),
-            ));
-        })->bind('commit');
-
-        /**
-         * Reference page
-         */
-        $this->get('/{repository}/{fullname}', function (Application $app, $repository, $fullname) {
-            return $app['twig']->render('reference.html.twig', array(
-                'reference'  => $repository->getReferences()->get($fullname),
-            ));
-        })->bind('reference')->assert('fullname', 'refs\\/.*');
-
-        /**
-         * Delete a reference
-         */
-        $this->post('/{repository}/admin/delete-ref/{fullname}', function (Application $app, $repository, $fullname) {
-            $repository->getReferences()->get($fullname)->delete();
-
-            return $app->redirect($app['url_generator']->generate('repository', array('repository' => $repository)));
-        })->bind('reference_delete')->assert('fullname', 'refs\\/.*');
+        /** Delete a reference */
+        $this
+            ->post('/{repository}/admin/delete-ref/{fullname}', 'controller.main:deleteReferenceAction')
+            ->bind('reference_delete')
+            ->assert('fullname', 'refs\\/.*')
+        ;
     }
 
     private function loadRepositories()
