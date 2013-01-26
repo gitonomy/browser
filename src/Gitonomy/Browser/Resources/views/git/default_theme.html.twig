@@ -119,6 +119,22 @@
 {% endspaceless %}
 {% endblock %}
 
+{% block tags %}
+{% spaceless %}
+    {% for tag in tags %}
+        <li>
+            <a href="{{ path('reference', {fullname: tag.fullname}) }}">
+                <strong>{{ tag.name }}</strong>
+            </a>
+            <small>
+                {{ git_author(tag.commit) }}
+                {{ tag.commit.authorDate.format('d/m/Y') }}
+            </small>
+        </li>
+    {% endfor %}
+{% endspaceless %}
+{% endblock %}
+
 {% block diff_summary %}
     <ul class="summary">
         {% for i,file in diff.files %}
