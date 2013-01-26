@@ -3,7 +3,7 @@ Gitonomy browser
 
 .. image:: https://api.travis-ci.org/gitonomy/browser.png
    :alt: Current build status
-   :target: https://api.travis-ci.org/gitonomy/browser
+   :target: https://travis-ci.org/gitonomy/browser
 
 Gitonomy browser is a handy tool to visualize your local git repositories.
 
