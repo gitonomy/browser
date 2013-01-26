@@ -1,6 +1,6 @@
 <?php
 
-namespace Gitonomy\Browser\Twig;
+namespace Gitonomy\Browser\Routing;
 
 use Gitonomy\Git\Commit;
 use Gitonomy\Git\Reference;

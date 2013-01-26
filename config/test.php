@@ -1,0 +1,3 @@
+<?php
+
+$gitonomy['debug'] = true;

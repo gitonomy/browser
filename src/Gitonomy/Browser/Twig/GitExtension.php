@@ -12,6 +12,10 @@ use Gitonomy\Git\Reference;
 use Gitonomy\Git\Log;
 use Gitonomy\Git\Tree;
 
+use Gitonomy\Browser\Git\Repository;
+use Gitonomy\Browser\Routing\GitUrlGeneratorInterface;
+use Gitonomy\Browser\Twig\TokenParser\GitThemeTokenParser;
+
 class GitExtension extends \Twig_Extension
 {
     private $urlGenerator;
@@ -23,12 +27,23 @@ class GitExtension extends \Twig_Extension
         $this->themes       = $themes;
     }
 
+    public function getTokenParsers()
+    {
+        return array(
+            // {% git_theme "my_themes.html.twig" %}
+            new GitThemeTokenParser(),
+        );
+    }
+
     public function getFunctions()
     {
         return array(
+            new \Twig_SimpleFunction('git_repository_name',   array($this, 'renderRepositoryName'),   array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('git_author',            array($this, 'renderAuthor'),           array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_commit_header',     array($this, 'renderCommitHeader'),     array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_diff',              array($this, 'renderDiff'),             array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_branches',          array($this, 'renderBranches'),         array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_tags',              array($this, 'renderTags'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log',               array($this, 'renderLog'),              array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log_rows',          array($this, 'renderLogRows'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_render',            array($this, 'renderBlock'),            array('is_safe' => array('html'), 'needs_environment' => true)),
@@ -47,6 +62,19 @@ class GitExtension extends \Twig_Extension
             new \Twig_SimpleTest('git_stash', function ($stash) { return $stash instanceof Stash; }),
             new \Twig_SimpleTest('git_tree', function ($tree) { return $tree instanceof Tree; })
         );
+    }
+
+    public function renderRepositoryName($value)
+    {
+        if ($value instanceof Commit) {
+            $repository = $value->getRepository();
+        } elseif ($value instanceof Repository) {
+            $repository = $value;
+        } else {
+            throw new \InvalidArgumentException(sprintf('Unsupported type for Repository name: %s', is_object($value) ? get_class($value) : gettype($value)));
+        }
+
+        return $repository->getName();
     }
 
     public function getUrl($value)
@@ -95,6 +123,21 @@ class GitExtension extends \Twig_Extension
         ));
     }
 
+    public function renderBranches(\Twig_Environment $env, Repository $repository)
+    {
+        return $this->renderBlock($env, 'branches', array(
+            'branches' => $repository->getReferences()->getBranches(),
+        ));
+    }
+
+
+    public function renderTags(\Twig_Environment $env, Repository $repository)
+    {
+        return $this->renderBlock($env, 'tags', array(
+            'tags' => $repository->getReferences()->getTags(),
+        ));
+    }
+
     public function renderAuthor(\Twig_Environment $env, Commit $commit, array $options = array())
     {
         $options = array_merge(array(
@@ -114,10 +157,21 @@ class GitExtension extends \Twig_Extension
         return 'git';
     }
 
+    public function addThemes($themes)
+    {
+        $themes = reset($themes);
+        $themes = is_array($themes) ? $themes : array($themes);
+        $this->themes = array_merge($themes, $this->themes);
+    }
+
     public function renderBlock(\Twig_Environment $env, $block, $context = array())
     {
         foreach ($this->themes as $theme) {
-            $tpl = $env->loadTemplate($theme);
+            if ($theme instanceof \Twig_Template) {
+                $tpl = $theme;
+            } else {
+                $tpl =  $env->loadTemplate($theme);
+            }
             if ($tpl->hasBlock($block)) {
                 return $tpl->renderBlock($block, $context);
             }
