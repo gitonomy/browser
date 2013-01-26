@@ -68,7 +68,6 @@
 
 {% block author %}
 {% spaceless %}
-
     <span class="git-author">
         {# Gravatar #}
         <img alt="Avatar of {{ name }}" width="{{ size }}" height="{{ size }}" src="http://www.gravatar.com/avatar/{{ email_md5 }}?s={{ size }}" />
@@ -79,7 +78,12 @@
 
 {% block commit_header %}
 {% spaceless %}
-    <h2>{{ commit.subjectMessage }} {{ git_author(commit) }}</h2>
+    <h2>
+        {{ commit.subjectMessage }}
+        <small>
+            {{ git_author(commit) }}
+        </small>
+    </h2>
     {% if commit.bodyMessage %}
         <pre>{{ commit.bodyMessage }}</pre>
     {% endif %}
@@ -96,6 +100,38 @@
                 {{ git_render('diff_file', {file: file}) }}
             </div>
         {% endfor %}
+{% endspaceless %}
+{% endblock %}
+
+{% block branches %}
+{% spaceless %}
+    {% for branch in branches %}
+        <li>
+            <a href="{{ path('reference', {fullname: branch.fullname}) }}">
+                <strong>{{ branch.name }}</strong>
+            </a>
+            <small>
+                {{ git_author(branch.commit) }}
+                {{ branch.commit.authorDate.format('d/m/Y') }}
+            </small>
+        </li>
+    {% endfor %}
+{% endspaceless %}
+{% endblock %}
+
+{% block tags %}
+{% spaceless %}
+    {% for tag in tags %}
+        <li>
+            <a href="{{ path('reference', {fullname: tag.fullname}) }}">
+                <strong>{{ tag.name }}</strong>
+            </a>
+            <small>
+                {{ git_author(tag.commit) }}
+                {{ tag.commit.authorDate.format('d/m/Y') }}
+            </small>
+        </li>
+    {% endfor %}
 {% endspaceless %}
 {% endblock %}
 

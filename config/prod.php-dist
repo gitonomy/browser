@@ -1,0 +1,12 @@
+<?php
+
+$gitonomy['repositories'] = array(
+    'project-A'  => new Gitonomy\Browser\Git\Repository('/var/www/project-a'),
+    'project-B'  => new Gitonomy\Browser\Git\Repository('/var/www/project-b'),
+);
+
+// or
+// $gitonomy['repositories'] = '/var/www/';
+
+// or
+// $gitonomy['repositories'] = '/var/www/dev-*';

@@ -2,139 +2,134 @@
 
 namespace Gitonomy\Browser;
 
-use Symfony\Component\HttpFoundation\Request;
-
 use Silex\Application as BaseApplication;
 use Silex\Provider\FormServiceProvider;
+use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
-use Silex\Provider\TranslationServiceProvider;
+use Silex\Provider\ServiceControllerServiceProvider;
 
+use Gitonomy\Browser\Controller\MainController;
+use Gitonomy\Browser\EventListener\RepositoryListener;
+use Gitonomy\Browser\Git\Repository;
+use Gitonomy\Browser\Routing\GitUrlGenerator;
 use Gitonomy\Browser\Twig\GitExtension;
+use Gitonomy\Browser\Utils\RepositoriesFinder;
 
 class Application extends BaseApplication
 {
-    public function __construct(array $repositories)
+    /**
+     * Constructor.
+     *
+     * @param string $configFile The config file to load.
+     * @param array  $extraParam An array to overide params in configFile (usefull for test)
+     */
+    public function __construct($configFile, array $extraParam = array())
     {
-        parent::__construct();
+        parent::__construct($extraParam);
 
-        $this['repositories'] = $repositories;
+        $gitonomy = $this;
 
-        // urlgen
+        if (!file_exists($configFile)) {
+            throw new \RuntimeException(sprintf('Can not find config file: "%s"', $configFile));
+        }
+        require $configFile;
+
+        $this->loadRepositories();
+
+        // Silex Service Provider
         $this->register(new UrlGeneratorServiceProvider());
-
-        // translator
         $this->register(new TranslationServiceProvider(), array('locale_fallback' => 'en'));
-        // form
         $this->register(new FormServiceProvider());
-
-        // twig
+        $this->register(new ServiceControllerServiceProvider());
         $this->register(new TwigServiceProvider(), array(
             'twig.path' => __DIR__.'/Resources/views',
             'debug'     => $this['debug'],
         ));
 
+        // Gitonomy\Browser Service Provider
         $urlGenerator = new GitUrlGenerator($this['url_generator'], $this['repositories']);
-
         $this['twig']->addExtension(new GitExtension($urlGenerator, array('git/default_theme.html.twig')));
 
-        $this->registerActions();
+        // Register the Repository Listener
+        $this['dispatcher']->addSubscriber(new RepositoryListener($this['request_context'], $this['twig'], $this['repositories']));
+
+        // Declaring controller
+        $this['controller.main'] = $this->share(function() use ($gitonomy) {
+            return new MainController($gitonomy['twig'], $gitonomy['url_generator'], $gitonomy['repositories']);
+        });
+
+        $this->registerRouting();
     }
 
-    public function registerActions()
+    public function registerRouting()
     {
-        /**
-         * Main page, showing all repositories.
-         */
-        $this->get('/', function (Application $app) {
-            return $app['twig']->render('repository_list.html.twig');
-        })->bind('repositories');
+        /** Main page, showing all repositories. */
+        $this
+            ->get('/', 'controller.main:listAction')
+            ->bind('repositories')
+        ;
 
-        /**
-         * Landing page of a repository.
-         */
-        $this->get('/{name}', function (Application $app, $name) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
+        /** Landing page of a repository. */
+        $this
+            ->get('/{repository}', 'controller.main:showRepositoryAction')
+            ->bind('repository')
+        ;
+
+        /** Ajax Log entries */
+        $this
+            ->get('/{repository}/log-ajax', 'controller.main:logAjaxAction')
+            ->bind('log_ajax')
+        ;
+
+        /** Commit page */
+        $this
+            ->get('/{repository}/commit/{hash}', 'controller.main:showCommitAction')
+            ->bind('commit')
+        ;
+
+        /** Reference page */
+        $this
+            ->get('/{repository}/{fullname}', 'controller.main:showReferenceAction')
+            ->bind('reference')
+            ->assert('fullname', 'refs\\/.*')
+        ;
+
+        /** Delete a reference */
+        $this
+            ->post('/{repository}/admin/delete-ref/{fullname}', 'controller.main:deleteReferenceAction')
+            ->bind('reference_delete')
+            ->assert('fullname', 'refs\\/.*')
+        ;
+    }
+
+    private function loadRepositories()
+    {
+        if (!isset($this['repositories'])) {
+            throw new \RuntimeException(sprintf('You should declare some repositories in the config file: "%s"', $configFile));
+        } elseif (is_string($this['repositories'])) {
+            $repoFinder = new RepositoriesFinder();
+            $this['repositories'] = $repoFinder->getRepositories($this['repositories']);
+        } elseif ($this['repositories'] instanceof Repository) {
+            $this['repositories'] = array($this['repositories']);
+        } elseif (is_array($this['repositories'])) {
+            foreach ($this['repositories'] as $key => $repository) {
+                if (!$repository instanceof Repository) {
+                    throw new \RuntimeException(sprintf('Value (%s) in $gitonomy[\'repositories\'] is not an instance of Repository in: "%s"', $key, $configFile));
+                }
+                if (is_string($key)) {
+                    $repository->setName($key);
+                }
             }
+        } else {
+            throw new \RuntimeException(sprintf('"$gitonomy" should be a array of Repository or a string in "%s"', $configFile));
+        }
 
-            return $app['twig']->render('log.html.twig', array(
-                'name'       => $name,
-                'repository' => $app['repositories'][$name]
-            ));
-        })->bind('repository');
+        $repositoryTmp = array();
+        foreach ($this['repositories'] as $repository) {
+            $repositoryTmp[$repository->getName()] = $repository;
+        }
 
-        /**
-         * Ajax Log entries
-         */
-        $this->get('/{name}/log-ajax', function (Request $request, Application $app, $name) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
-            }
-
-            $repository = $app['repositories'][$name];
-
-            if ($reference = $request->query->get('reference')) {
-                $log = $repository->getReferences()->get($reference)->getLog();
-            } else {
-                $log = $repository->getLog();
-            }
-
-            if (null !== ($offset = $request->query->get('offset'))) {
-                $log->setOffset($offset);
-            }
-
-            if (null !== ($limit = $request->query->get('limit'))) {
-                $log->setLimit($limit);
-            }
-
-            $log = $repository->getLog()->setOffset($offset)->setLimit($limit);
-
-            return $app['twig']->render('log_ajax.html.twig', array(
-                'name'       => $name,
-                'log'        => $log
-            ));
-        })->bind('log_ajax');
-
-        /**
-         * Commit page
-         */
-        $this->get('/{name}/commit/{hash}', function (Application $app, $name, $hash) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
-            }
-
-            return $app['twig']->render('commit.html.twig', array(
-                'name'   => $name,
-                'commit' => $app['repositories'][$name]->getCommit($hash),
-            ));
-        })->bind('commit');
-
-        /**
-         * Reference page
-         */
-        $this->get('/{name}/{fullname}', function (Application $app, $name, $fullname) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
-            }
-
-            return $app['twig']->render('reference.html.twig', array(
-                'name'      => $name,
-                'reference' => $app['repositories'][$name]->getReferences()->get($fullname),
-            ));
-        })->bind('reference')->assert('fullname', 'refs\\/.*');
-
-        /**
-         * Delete a reference
-         */
-        $this->post('/{name}/admin/delete-ref/{fullname}', function (Application $app, $name, $fullname) {
-            if (!isset($app['repositories'][$name])) {
-                $app->abort(404, "Repository $name does not exist");
-            }
-
-            $app['repositories'][$name]->getReferences()->get($fullname)->delete();
-
-            return $app->redirect($app['url_generator']->generate('repository', array('name' => $name)));
-        })->bind('reference_delete')->assert('fullname', 'refs\\/.*');
+        $this['repositories'] = $repositoryTmp;
     }
 }
