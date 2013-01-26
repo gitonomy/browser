@@ -34,25 +34,7 @@ class Application extends BaseApplication
         }
         require $configFile;
 
-        if (!isset($this['repositories'])) {
-            throw new \RuntimeException(sprintf('You should declare some repositories in the config file: "%s"', $configFile));
-        } elseif (is_string($this['repositories'])) {
-            $repoFinder = new RepositoriesFinder();
-            $this['repositories'] = $repoFinder->getRepositories($this['repositories']);
-        } elseif ($this['repositories'] instanceof Repository) {
-            $this['repositories'] = array($this['repositories']);
-        } elseif (is_array($this['repositories'])) {
-            foreach ($this['repositories'] as $key => $repository) {
-                if (!$repository instanceof Repository) {
-                    throw new \RuntimeException(sprintf('Value (%s) in $gitonomy[\'repositories\'] is not an instance of Repository in: "%s"', $key, $configFile));
-                }
-                if (is_string($key)) {
-                    $repository->setName($key);
-                }
-            }
-        } elseif (!is_array($this['repositories'])) {
-            throw new \RuntimeException(sprintf('"$gitonomy" should be a array of Repository or a string in "%s"', $configFile));
-        }
+        $this->loadRepositories();
 
         // urlgen
         $this->register(new UrlGeneratorServiceProvider());
@@ -161,5 +143,35 @@ class Application extends BaseApplication
 
             return $app->redirect($app['url_generator']->generate('repository', array('repository' => $repository)));
         })->bind('reference_delete')->assert('fullname', 'refs\\/.*');
+    }
+
+    private function loadRepositories()
+    {
+        if (!isset($this['repositories'])) {
+            throw new \RuntimeException(sprintf('You should declare some repositories in the config file: "%s"', $configFile));
+        } elseif (is_string($this['repositories'])) {
+            $repoFinder = new RepositoriesFinder();
+            $this['repositories'] = $repoFinder->getRepositories($this['repositories']);
+        } elseif ($this['repositories'] instanceof Repository) {
+            $this['repositories'] = array($this['repositories']);
+        } elseif (is_array($this['repositories'])) {
+            foreach ($this['repositories'] as $key => $repository) {
+                if (!$repository instanceof Repository) {
+                    throw new \RuntimeException(sprintf('Value (%s) in $gitonomy[\'repositories\'] is not an instance of Repository in: "%s"', $key, $configFile));
+                }
+                if (is_string($key)) {
+                    $repository->setName($key);
+                }
+            }
+        } else {
+            throw new \RuntimeException(sprintf('"$gitonomy" should be a array of Repository or a string in "%s"', $configFile));
+        }
+
+        $repositoryTmp = array();
+        foreach ($this['repositories'] as $repository) {
+            $repositoryTmp[$repository->getName()] = $repository;
+        }
+
+        $this['repositories'] = $repositoryTmp;
     }
 }
