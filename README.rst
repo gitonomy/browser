@@ -30,9 +30,11 @@ First way to configure is to give an exhaustive list of repositories you want:
 
     <?php # prod.php
 
+    use Gitonomy\Browser\Git\Repository;
+
     $app['repositories'] = array(
-        'foobar' => new Gitonomy\Git\Repository('/var/www/foobar'),
-        'barbaz' => new Gitonomy\Git\Repository('/var/www/barbaz'),
+        'foobar' => new Repository('/var/www/foobar'),
+        'barbaz' => new Repository('/var/www/barbaz'),
     );
 
 The second way is to use recursive function to detect repositories. It's very
@@ -42,8 +44,16 @@ useful if you have multi-level folders:
 
     <?php # prod.php
 
-    $app['repositories'] = ';
+    $app['repositories'] = '/var/www';
 
+The third way is to use a wildcard to detect repositories. It's very useful
+if you have every repository at the same level
+
+.. code-block:: php
+
+    <?php # prod.php
+
+    $app['repositories'] = '/var/www/repo-*';
 
 When you have filled it, launch `composer`_ to fetch dependencies and make
 project workable:
