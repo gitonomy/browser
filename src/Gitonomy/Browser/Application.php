@@ -10,6 +10,7 @@ use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 
+use Gitonomy\Browser\EventListener\RepositoryListener;
 use Gitonomy\Browser\Git\Repository;
 use Gitonomy\Browser\Routing\GitUrlGenerator;
 use Gitonomy\Browser\Twig\GitExtension;
@@ -54,24 +55,7 @@ class Application extends BaseApplication
 
         $this['twig']->addExtension(new GitExtension($urlGenerator, array('git/default_theme.html.twig')));
 
-        $this['controllers']->before(function (Request $request, Application $app) {
-            if ($request->attributes->has('repository')) {
-                $repository = $request->attributes->get('repository');
-                if (!isset($app['repositories'][$repository])) {
-                    $app->abort(404, "Repository $repository does not exist");
-                }
-
-                $this['request_context']->setParameter('repository', $repository);
-
-                $app['twig']->addGlobal('repository', $app['repositories'][$repository]);
-            }
-        });
-
-        $this['controllers']->convert('repository', function ($repository, Request $request) use ($gitonomy) {
-            if (null !== $repository) {
-                return $gitonomy['repositories'][$repository];
-            }
-        });
+        $this['dispatcher']->addSubscriber(new RepositoryListener($this['request_context'], $this['twig'], $this['repositories']));
 
         $this->registerActions();
     }
