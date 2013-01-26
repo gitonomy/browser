@@ -11,13 +11,29 @@ class RepositoriesFinder
         $repositories = array();
 
         if (false !== strpos($path, '*')) {
-            $repositoriesTmp = glob($path);
+            $repositoriesTmp = $this->globDirectory($path);
         } else {
             $repositoriesTmp = $this->recurseDirectory($path);
         }
 
         foreach ($repositoriesTmp as $repo) {
-            $repositories[basename($repo)] = new Repository($repo);
+            $repositories[] = new Repository($repo);
+        }
+
+        return $repositories;
+    }
+
+    private function globDirectory($path)
+    {
+        $repositories = array();
+
+        foreach (glob($path, GLOB_ONLYDIR) as $dir) {
+            $isBare = file_exists($dir . '/HEAD');
+            $isRepository = file_exists($dir . '/.git/HEAD');
+
+            if ($isRepository || $isBare) {
+                $repositories[] = $dir;
+            }
         }
 
         return $repositories;
@@ -28,30 +44,29 @@ class RepositoriesFinder
      */
     private function recurseDirectory($path)
     {
-        $dir = new \DirectoryIterator($path);
+        $dirs = new \DirectoryIterator($path);
 
         $repositories = array();
 
-        foreach ($dir as $file) {
-            if ($file->isDot()) {
+        foreach ($dirs as $dir) {
+            if ($dir->isDot() || !$dir->isDir()) {
                 continue;
             }
 
-            if (strrpos($file->getFilename(), '.') === 0) {
+            // Ignore hidden directories
+            if (0 === substr($dir->getFilename(), 0, 1)) {
                 continue;
             }
 
-            if ($file->isDir()) {
-                $isBare = file_exists($file->getPathname() . '/HEAD');
-                $isRepository = file_exists($file->getPathname() . '/.git/HEAD');
+            $isBare = file_exists($dir->getPathname() . '/HEAD');
+            $isRepository = file_exists($dir->getPathname() . '/.git/HEAD');
 
-                if ($isRepository || $isBare) {
-                    $repositories[] = $file->getPathname();
-                    continue;
-                } else {
-                    $repositories = array_merge($repositories, $this->recurseDirectory($file->getPathname()));
-                }
+            if ($isRepository || $isBare) {
+                $repositories[] = $dir->getPathname();
+                continue;
             }
+
+            $repositories = array_merge($repositories, $this->recurseDirectory($dir->getPathname()));
         }
 
         return $repositories;
