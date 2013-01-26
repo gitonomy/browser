@@ -13,8 +13,8 @@ use Gitonomy\Git\Log;
 use Gitonomy\Git\Tree;
 
 use Gitonomy\Browser\Git\Repository;
-
 use Gitonomy\Browser\Routing\GitUrlGeneratorInterface;
+use Gitonomy\Browser\Twig\TokenParser\GitThemeTokenParser;
 
 class GitExtension extends \Twig_Extension
 {
@@ -25,6 +25,14 @@ class GitExtension extends \Twig_Extension
     {
         $this->urlGenerator = $urlGenerator;
         $this->themes       = $themes;
+    }
+
+    public function getTokenParsers()
+    {
+        return array(
+            // {% git_theme "my_themes.html.twig" %}
+            new GitThemeTokenParser(),
+        );
     }
 
     public function getFunctions()
@@ -149,10 +157,21 @@ class GitExtension extends \Twig_Extension
         return 'git';
     }
 
+    public function addThemes($themes)
+    {
+        $themes = reset($themes);
+        $themes = is_array($themes) ? $themes : array($themes);
+        $this->themes = array_merge($themes, $this->themes);
+    }
+
     public function renderBlock(\Twig_Environment $env, $block, $context = array())
     {
         foreach ($this->themes as $theme) {
-            $tpl = $env->loadTemplate($theme);
+            if ($theme instanceof \Twig_Template) {
+                $tpl = $theme;
+            } else {
+                $tpl =  $env->loadTemplate($theme);
+            }
             if ($tpl->hasBlock($block)) {
                 return $tpl->renderBlock($block, $context);
             }
