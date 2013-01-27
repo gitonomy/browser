@@ -10,7 +10,7 @@
             <div class="gitonomy-browser">
                 <h1>
                     {% if repository|default(false) %}
-                    <a class="project-name" href="#">{{ repository.name }}</a>
+                    <a class="project-name" href="{{ path('repository') }}">{{ repository.name }}</a>
                     -
                     {% endif %}
                     <a href="{{ path('repositories') }}">gitonomy/browser</a>

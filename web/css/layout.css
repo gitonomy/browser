@@ -49,3 +49,20 @@ body {
     width: 100%;
     text-align: right;
 }
+
+.gitonomy-browser h2 {
+    font-weight: normal;
+    font-size: 1.3em;
+    padding-top: 1em;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+}
+
+.gitonomy-browser a {
+    color: blue;
+    text-decoration: none;
+}
+
+.gitonomy-browser a:hover {
+    text-decoration: underline;
+}
