@@ -25,7 +25,7 @@ class MainController
 
     public function showRepositoryAction()
     {
-        return $this->twig->render('log.html.twig');
+        return $this->twig->render('repository.html.twig');
     }
 
     public function logAjaxAction(Request $request, $repository)
