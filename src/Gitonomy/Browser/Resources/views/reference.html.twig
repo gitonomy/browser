@@ -4,10 +4,6 @@
 
 {% block content %}
     <h2>
-        <a href="{{ path('repository') }}">
-            {{ repository }}
-        </a>
-        &gt;
         {% if reference is git_branch %}
             branch {{ reference.name }}
         {% elseif reference is git_tag %}
