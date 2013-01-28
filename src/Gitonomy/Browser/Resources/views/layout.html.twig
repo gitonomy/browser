@@ -2,8 +2,8 @@
 <html>
     <head>
         <title>{% block title '' %}</title>
-        <link rel="stylesheet" href="/css/git/log.css" />
-        <link rel="stylesheet" href="/css/layout.css" />
+        <link rel="stylesheet" href="{{ app.request.basepath }}/css/git/log.css" />
+        <link rel="stylesheet" href="{{ app.request.basepath }}/css/layout.css" />
     </head>
     <body>
         <div class="gitonomy-browser">
@@ -11,8 +11,8 @@
             <hr />
             {% block content '' %}
             <hr />
-            <script type="text/javascript" src="/vendor/jquery-1.9.0.min.js"></script>
-            <script type="text/javascript" src="/js/log.js"></script>
+            <script type="text/javascript" src="{{ app.request.basepath }}/vendor/jquery-1.9.0.min.js"></script>
+            <script type="text/javascript" src="{{ app.request.basepath }}/js/log.js"></script>
         </div>
     </body>
 </html>
