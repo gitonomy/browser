@@ -2,8 +2,23 @@
 
 use Silex\WebTestCase;
 
+use Gitonomy\Browser\Git\Repository;
+use Gitonomy\Git\Admin;
+
 class ApplicationTest extends WebTestCase
 {
+    const TEST_REPOSITORY = 'git@github.com:gitonomy/foobar.git';
+
+    static public function createRepository()
+    {
+        $tmp = sys_get_temp_dir().'gitonomybrowser_foobar';
+        if (!is_dir($tmp)) {
+            Admin::cloneTo($tmp, self::TEST_REPOSITORY);
+        }
+
+        return new Repository($tmp);
+    }
+
     public function createApplication()
     {
         $rootDir = __DIR__.'/../../../../..';
