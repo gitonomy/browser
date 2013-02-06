@@ -2,25 +2,11 @@
 
 {% block content %}
     {% for repository in repositories %}
-        <h2>
+        <h3>
             <a href="{{ path('repository', {repository: repository}) }}">
                 {{ repository }}
             </a>
-        </h2>
-        <ul>
-            {% for branch in repository.references.localBranches %}
-                <li>
-                    {% spaceless %}
-                        <a href="{{ path('reference', {repository: repository, fullname: branch.fullname}) }}">
-                            <strong>{{ branch.name }}</strong>
-                        </a>
-                    {% endspaceless %}
-                    <small>
-                        {{ git_author(branch.commit) }}
-                        {{ branch.commit.authorDate.format('d/m/Y') }}
-                    </small>
-                </li>
-            {% endfor %}
-        </ul>
+        </h3>
+        {{ git_branches(repository, {local_only: true}) }}
     {% endfor %}
 {% endblock %}

@@ -2,17 +2,31 @@
 <html>
     <head>
         <title>{% block title '' %}</title>
+        <link rel="stylesheet" href="{{ app.request.basepath }}/css/git/diff.css" />
         <link rel="stylesheet" href="{{ app.request.basepath }}/css/git/log.css" />
         <link rel="stylesheet" href="{{ app.request.basepath }}/css/layout.css" />
     </head>
     <body>
-        <div class="gitonomy-browser">
-            <h1><a href="{{ path('repositories') }}">gitonomy browser</a></h1>
-            <hr />
-            {% block content '' %}
-            <hr />
-            <script type="text/javascript" src="{{ app.request.basepath }}/vendor/jquery-1.9.0.min.js"></script>
-            <script type="text/javascript" src="{{ app.request.basepath }}/js/log.js"></script>
+        <div class="gitonomy-browser-wrapper">
+            <div class="gitonomy-browser">
+                <h1>
+                    {% if repository|default(false) %}
+                    <a class="project-name" href="{{ path('repository') }}">{{ repository.name }}</a>
+                    -
+                    {% endif %}
+                    <a href="{{ path('repositories') }}">gitonomy/browser</a>
+                </h1>
+                <div class="gitonomy-browser-content">
+                    {% block content '' %}
+                </div>
+                <div class="gitonomy-browser-footer">
+                    <p>
+                        Powered by <a href="http://gitonomy.com">gitonomy</a>
+                    </p>
+                </div>
+            </div>
         </div>
+        <script type="text/javascript" src="{{ app.request.basepath }}/vendor/jquery-1.9.0.min.js"></script>
+        <script type="text/javascript" src="{{ app.request.basepath }}/js/log.js"></script>
     </body>
 </html>
