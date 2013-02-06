@@ -9,9 +9,9 @@ class Repository extends BaseRepository
 {
     private $name;
 
-    public function __construct($dir, $workingDir = null, LoggerInterface $logger = null)
+    public function __construct($path, array $options = array())
     {
-        parent::__construct($dir, $workingDir, $logger);
+        parent::__construct($path, $options);
 
         $this->setName(basename($this->getPath()));
     }
