@@ -100,38 +100,43 @@
                 {{ git_render('diff_file', {file: file}) }}
             </div>
         {% endfor %}
+    </div>
 {% endspaceless %}
 {% endblock %}
 
 {% block branches %}
 {% spaceless %}
-    {% for branch in branches %}
-        <li>
-            <a href="{{ path('reference', {fullname: branch.fullname}) }}">
-                <strong>{{ branch.name }}</strong>
-            </a>
-            <small>
-                {{ git_author(branch.commit) }}
-                {{ branch.commit.authorDate.format('d/m/Y') }}
-            </small>
-        </li>
-    {% endfor %}
+    <ul>
+        {% for branch in branches %}
+            <li>
+                <a href="{{ git_url(branch) }}">
+                    <strong>{{ branch.name }}</strong>
+                </a>
+                <small>
+                    {{ git_author(branch.commit) }}
+                    {{ branch.commit.authorDate.format('d/m/Y') }}
+                </small>
+            </li>
+        {% endfor %}
+    </ul>
 {% endspaceless %}
 {% endblock %}
 
 {% block tags %}
 {% spaceless %}
-    {% for tag in tags %}
-        <li>
-            <a href="{{ path('reference', {fullname: tag.fullname}) }}">
-                <strong>{{ tag.name }}</strong>
-            </a>
-            <small>
-                {{ git_author(tag.commit) }}
-                {{ tag.commit.authorDate.format('d/m/Y') }}
-            </small>
-        </li>
-    {% endfor %}
+    <ul>
+        {% for tag in tags %}
+            <li>
+                <a href="{{ git_url(tag) }}">
+                    <strong>{{ tag.name }}</strong>
+                </a>
+                <small>
+                    {{ git_author(tag.commit) }}
+                    {{ tag.commit.authorDate.format('d/m/Y') }}
+                </small>
+            </li>
+        {% endfor %}
+    </ul>
 {% endspaceless %}
 {% endblock %}
 
@@ -149,6 +154,7 @@
 
 {% block diff_file %}
 {% spaceless %}
+    <header>
         {% if file.oldName == file.newName and file.oldMode == file.newMode %}
             <span class="file">{{ file.oldName }}</span>
         {% elseif file.oldName == null %}
@@ -162,40 +168,32 @@
                 <li>{{ file.oldName }} ({{ file.oldMode }}) -&gt; {{ file.newName }} ({{ file.newMode }})</li>
             </ul>
         {% endif %}
-        {% if not file.binary %}
-            <div class="btn-group pull-right">
-                <a rel="tooltip" title="{{ 'label.button.old'|trans }}" class="btn btn-small show-old"><i class="icon-chevron-left"></i></a>
-                <a rel="tooltip" title="{{ 'label.button.diff'|trans }}" disabled="disabled" class="btn btn-small show-diff"><i class="icon-eye-close"></i></a>
-                <a rel="tooltip" title="{{ 'label.button.new'|trans }}" class="btn btn-small show-new"><i class="icon-chevron-right"></i></a>
-                {% if reference|default(null) and slug|default(null) %}
-                    <a rel="tooltip" data-placement="left" title="{{ 'label.button.full_file'|trans }}" class="btn btn-small" href="{{ path('project_tree', {slug: slug, reference: reference, path: file.name}) }}"><i class="icon-file"></i></a>
-                {% endif %}
-            </div>
-        {% endif %}
     </header>
     <div class="file-changes">
-        {% for change in file.changes %}
-            {% if not loop.first %}
-                <tr><td class="skip" colspan="3">&nbsp;</td></tr>
-            {% endif %}
-            {% set old = change.rangeOldStart %}
-            {% set new = change.rangeNewStart %}
-            {%- for x, line in change.lines -%}
-                <tr class="{{ line[0] == 1 ? 'new' : line[0] == -1 ? 'old' : '' }}">
-                    <td class="old">{{ line[0] != 1 ? old : ' ' }}</td>
-                    <td class="new">{{ line[0] != -1 ? new : ' ' }}</td>
-                    <td class="{{ line[0] == 1 ? 'plus' : line[0] == -1 ? 'minus' : '' }} source"><pre>{{ line[1] }}</pre></td>
-                </tr>
-                {%- if line[0] == 1 -%}
-                    {%- set new = new + 1 -%}
-                {%- elseif line[0] == -1 -%}
-                    {%- set old = old + 1 -%}
-                {%- else -%}
-                    {%- set new = new + 1 -%}
-                    {%- set old = old + 1 -%}
-                {%- endif -%}
-            {%- endfor -%}
-        {% endfor %}
+        <table class="diff-lines">
+            {% for change in file.changes %}
+                {% if not loop.first %}
+                    <tr><td class="skip" colspan="3">&nbsp;</td></tr>
+                {% endif %}
+                {% set old = change.rangeOldStart %}
+                {% set new = change.rangeNewStart %}
+                {%- for x, line in change.lines -%}
+                    <tr class="{{ line[0] == 1 ? 'new' : line[0] == -1 ? 'old' : '' }}">
+                        <td class="old">{{ line[0] != 1 ? old : ' ' }}</td>
+                        <td class="new">{{ line[0] != -1 ? new : ' ' }}</td>
+                        <td class="{{ line[0] == 1 ? 'plus' : line[0] == -1 ? 'minus' : '' }} source"><pre>{{ line[1] }}</pre></td>
+                    </tr>
+                    {%- if line[0] == 1 -%}
+                        {%- set new = new + 1 -%}
+                    {%- elseif line[0] == -1 -%}
+                        {%- set old = old + 1 -%}
+                    {%- else -%}
+                        {%- set new = new + 1 -%}
+                        {%- set old = old + 1 -%}
+                    {%- endif -%}
+                {%- endfor -%}
+            {% endfor %}
+        </table>
     </div>
 {% endspaceless %}
 {% endblock %}

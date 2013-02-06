@@ -123,10 +123,18 @@ class GitExtension extends \Twig_Extension
         ));
     }
 
-    public function renderBranches(\Twig_Environment $env, Repository $repository)
+    public function renderBranches(\Twig_Environment $env, Repository $repository, array $options = array())
     {
+        $options = array_merge(array('local_only' => false), $options);
+
+        if (!$options['local_only']) {
+            $branches = $repository->getReferences()->getBranches();
+        } else {
+            $branches = $repository->getReferences()->getLocalBranches();
+        }
+
         return $this->renderBlock($env, 'branches', array(
-            'branches' => $repository->getReferences()->getBranches(),
+            'branches' => $branches,
         ));
     }
 
@@ -152,11 +160,6 @@ class GitExtension extends \Twig_Extension
         ));
     }
 
-    public function getName()
-    {
-        return 'git';
-    }
-
     public function addThemes($themes)
     {
         $themes = reset($themes);
@@ -178,5 +181,13 @@ class GitExtension extends \Twig_Extension
         }
 
         throw new \InvalidArgumentException('Unable to find block '.$block);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'git';
     }
 }
