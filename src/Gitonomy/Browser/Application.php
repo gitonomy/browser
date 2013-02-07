@@ -4,10 +4,11 @@ namespace Gitonomy\Browser;
 
 use Silex\Application as BaseApplication;
 use Silex\Provider\FormServiceProvider;
+use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
-use Silex\Provider\ServiceControllerServiceProvider;
+use Silex\Provider\WebProfilerServiceProvider;
 
 use Gitonomy\Browser\Controller\MainController;
 use Gitonomy\Browser\EventListener\RepositoryListener;
@@ -43,9 +44,17 @@ class Application extends BaseApplication
         $this->register(new FormServiceProvider());
         $this->register(new ServiceControllerServiceProvider());
         $this->register(new TwigServiceProvider(), array(
-            'twig.path' => __DIR__.'/Resources/views',
-            'debug'     => $this['debug'],
+            'twig.path'    => __DIR__.'/Resources/views',
+            'debug'        => $this['debug'],
+            'twig.options' => array('cache' => __DIR__.'/../../../cache/twig'),
         ));
+
+        if ($this['debug']) {
+            $this->register($profiler = new WebProfilerServiceProvider(), array(
+                'profiler.cache_dir' => __DIR__.'/../../../cache/profiler',
+            ));
+            $this->mount('/_profiler', $profiler);
+        }
 
         // Gitonomy\Browser Service Provider
         $urlGenerator = new GitUrlGenerator($this['url_generator'], $this['repositories']);
