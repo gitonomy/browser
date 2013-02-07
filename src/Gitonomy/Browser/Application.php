@@ -44,8 +44,9 @@ class Application extends BaseApplication
         $this->register(new FormServiceProvider());
         $this->register(new ServiceControllerServiceProvider());
         $this->register(new TwigServiceProvider(), array(
-            'twig.path' => __DIR__.'/Resources/views',
-            'debug'     => $this['debug'],
+            'twig.path'    => __DIR__.'/Resources/views',
+            'debug'        => $this['debug'],
+            'twig.options' => array('cache' => __DIR__.'/../../../cache/twig'),
         ));
 
         if ($this['debug']) {
