@@ -8,7 +8,8 @@
         "symfony/translation" : "~2.2",
         "symfony/twig-bridge" : "~2.2",
         "symfony/validator"   : "~2.2",
-        "twig/twig"           : "~1.12"
+        "twig/twig"           : "~1.12",
+        "silex/web-profiler"  : "~1.0@dev"
     },
     "require-dev": {
         "symfony/browser-kit"  : "~2.2",
