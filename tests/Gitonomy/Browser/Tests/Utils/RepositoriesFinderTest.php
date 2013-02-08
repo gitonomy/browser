@@ -11,7 +11,7 @@ class RepositoriesFinderTest extends \PHPUnit_Framework_TestCase
     {
         $finder = new RepositoriesFinder();
 
-        $repositories = $finder->getRepositories(__DIR__.'/../../../../../vendor/silex');
+        $repositories = $finder->getRepositories(__DIR__.'/../../../../../vendor/twig');
 
         $this->assertCount(1, $repositories);
         $this->assertInstanceOf('Gitonomy\Git\Repository', reset($repositories));
