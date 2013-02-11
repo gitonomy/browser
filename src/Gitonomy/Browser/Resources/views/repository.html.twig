@@ -12,5 +12,5 @@
     {% endif %}
 
     <h3>Logs</h3>
-    {{ git_log(repository.log.setLimit(30), {query_url: path('log_ajax')}) }}
+    {{ git_log(repository.log.setLimit(30), {query_url: url('log_ajax')}) }}
 {% endblock %}

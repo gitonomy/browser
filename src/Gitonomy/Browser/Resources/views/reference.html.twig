@@ -14,10 +14,10 @@
             {{ reference.fullname }}
         {% endif %}
         <div style="float: right">
-            <form method="POST" action="{{ path('reference_delete', {fullname: reference.fullname}) }}">
+            <form method="POST" action="{{ url('reference_delete', {fullname: reference.fullname}) }}">
                 <input type="submit" value="DELETE" />
             </form>
         </div>
     </h2>
-    {{ git_log(reference.log.setLimit(10), {query_url: path('log_ajax', {fullname: reference.fullname})}) }}
+    {{ git_log(reference.log.setLimit(10), {query_url: url('log_ajax', {fullname: reference.fullname})}) }}
 {% endblock %}

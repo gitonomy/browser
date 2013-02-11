@@ -11,10 +11,10 @@
             <div class="gitonomy-browser">
                 <h1>
                     {% if repository|default(false) %}
-                    <a class="project-name" href="{{ path('repository') }}">{{ repository.name }}</a>
+                    <a class="project-name" href="{{ url('repository') }}">{{ repository.name }}</a>
                     -
                     {% endif %}
-                    <a href="{{ path('repositories') }}">gitonomy/browser</a>
+                    <a href="{{ url('repositories') }}">gitonomy/browser</a>
                 </h1>
                 <div class="gitonomy-browser-content">
                     {% block content '' %}
