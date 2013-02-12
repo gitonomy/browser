@@ -38,15 +38,16 @@ class GitExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('git_repository_name',   array($this, 'renderRepositoryName'),   array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('git_author',            array($this, 'renderAuthor'),           array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_blob',              array($this, 'renderBlob'),             array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_branches',          array($this, 'renderBranches'),         array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_commit_header',     array($this, 'renderCommitHeader'),     array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_diff',              array($this, 'renderDiff'),             array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('git_branches',          array($this, 'renderBranches'),         array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('git_tags',              array($this, 'renderTags'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log',               array($this, 'renderLog'),              array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log_rows',          array($this, 'renderLogRows'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_render',            array($this, 'renderBlock'),            array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_repository_name',   array($this, 'renderRepositoryName'),   array('is_safe' => array('html'))),
+            new \Twig_SimpleFunction('git_tags',              array($this, 'renderTags'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_url',               array($this, 'getUrl')),
         );
     }
@@ -138,7 +139,6 @@ class GitExtension extends \Twig_Extension
         ));
     }
 
-
     public function renderTags(\Twig_Environment $env, Repository $repository)
     {
         return $this->renderBlock($env, 'tags', array(
@@ -158,6 +158,22 @@ class GitExtension extends \Twig_Extension
             'email'     => $commit->getAuthorEmail(),
             'email_md5' => md5($commit->getAuthorEmail())
         ));
+    }
+
+    public function renderBlob($env, Blob $blob, $path = null)
+    {
+        if ($blob->isText()) {
+            $block = 'blob_text';
+        } else {
+            $mime = $blob->getMimetype();
+            if (preg_match("#^image/(png|jpe?g|gif)#", $mime)) {
+                $block = 'blob_image';
+            } else {
+                $block = 'blob_binary';
+            }
+        }
+
+        return $this->renderBlock($env, $block, array('blob' => $blob));
     }
 
     public function addThemes($themes)

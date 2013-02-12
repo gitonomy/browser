@@ -11,6 +11,9 @@
         {{ git_tags(repository) }}
     {% endif %}
 
+    <h3>Browse</h3>
+    <a href="{{ url('tree') }}">Browse the repository</a>
+
     <h3>Logs</h3>
     {{ git_log(repository.log.setLimit(30), {query_url: url('log_ajax')}) }}
 {% endblock %}

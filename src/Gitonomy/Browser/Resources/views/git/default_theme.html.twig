@@ -215,3 +215,21 @@
     </a>
 {% endspaceless %}
 {% endblock %}
+
+{% block blob_text %}
+{% spaceless %}
+    <pre><code>{{ blob.content }}</code></pre>
+{% endspaceless %}
+{% endblock %}
+
+{% block blob_image %}
+{% spaceless %}
+    <pre><code>IMAGE</code></pre>
+{% endspaceless %}
+{% endblock %}
+
+{% block blob_binary %}
+{% spaceless %}
+    <pre><code>BINARY</code></pre>
+{% endspaceless %}
+{% endblock %}
