@@ -6,8 +6,10 @@
     <h2>
         {% if reference is git_branch %}
             branch {{ reference.name }}
+            {% set hash = reference.name %}
         {% elseif reference is git_tag %}
             tag {{ reference.name }}
+            {% set hash = reference.name %}
         {% elseif reference is git_stash %}
             tag {{ reference.name }}
         {% else %}
@@ -19,5 +21,11 @@
             </form>
         </div>
     </h2>
+
+    {% if hash is defined %}
+        <h3>Browse</h3>
+        <a href="{{ url('tree', {reference: hash }) }}">Browse the repository</a>
+    {% endif %}
+
     {{ git_log(reference.log.setLimit(10), {query_url: url('log_ajax', {fullname: reference.fullname})}) }}
 {% endblock %}
