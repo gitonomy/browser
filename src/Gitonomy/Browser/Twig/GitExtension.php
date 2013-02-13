@@ -38,15 +38,17 @@ class GitExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction('git_repository_name',   array($this, 'renderRepositoryName'),   array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('git_author',            array($this, 'renderAuthor'),           array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_blob',              array($this, 'renderBlob'),             array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_branches',          array($this, 'renderBranches'),         array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_commit_header',     array($this, 'renderCommitHeader'),     array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_diff',              array($this, 'renderDiff'),             array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('git_branches',          array($this, 'renderBranches'),         array('is_safe' => array('html'), 'needs_environment' => true)),
-            new \Twig_SimpleFunction('git_tags',              array($this, 'renderTags'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log',               array($this, 'renderLog'),              array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_tree',              array($this, 'renderTree'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log_rows',          array($this, 'renderLogRows'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_render',            array($this, 'renderBlock'),            array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_repository_name',   array($this, 'renderRepositoryName'),   array('is_safe' => array('html'))),
+            new \Twig_SimpleFunction('git_tags',              array($this, 'renderTags'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_url',               array($this, 'getUrl')),
         );
     }
@@ -138,7 +140,6 @@ class GitExtension extends \Twig_Extension
         ));
     }
 
-
     public function renderTags(\Twig_Environment $env, Repository $repository)
     {
         return $this->renderBlock($env, 'tags', array(
@@ -160,6 +161,33 @@ class GitExtension extends \Twig_Extension
         ));
     }
 
+    public function renderTree(\Twig_Environment $env, Tree $tree, Commit $commit, $path = '', $revision = 'master')
+    {
+        return $this->renderBlock($env, 'tree', array(
+            'tree'        => $tree,
+            'parent_path' => substr($path, 0, strrpos($path, '/')),
+            'path'        => $path,
+            'revision'    => $revision,
+            'commit'      => $commit,
+        ));
+    }
+
+    public function renderBlob($env, Blob $blob, $path = null)
+    {
+        if ($blob->isText()) {
+            $block = 'blob_text';
+        } else {
+            $mime = $blob->getMimetype();
+            if (preg_match("#^image/(png|jpe?g|gif)#", $mime)) {
+                $block = 'blob_image';
+            } else {
+                $block = 'blob_binary';
+            }
+        }
+
+        return $this->renderBlock($env, $block, array('blob' => $blob));
+    }
+
     public function addThemes($themes)
     {
         $themes = reset($themes);
@@ -167,7 +195,7 @@ class GitExtension extends \Twig_Extension
         $this->themes = array_merge($themes, $this->themes);
     }
 
-    public function renderBlock(\Twig_Environment $env, $block, $context = array())
+    public function renderBlock(\Twig_Environment $env, $block, $parameters = array())
     {
         foreach ($this->themes as $theme) {
             if ($theme instanceof \Twig_Template) {
@@ -176,7 +204,7 @@ class GitExtension extends \Twig_Extension
                 $tpl =  $env->loadTemplate($theme);
             }
             if ($tpl->hasBlock($block)) {
-                return $tpl->renderBlock($block, $context);
+                return $tpl->renderBlock($block, $parameters);
             }
         }
 

@@ -3,7 +3,7 @@
 {% block content %}
     {% for repository in repositories %}
         <h3>
-            <a href="{{ path('repository', {repository: repository}) }}">
+            <a href="{{ url('repository', {repository: repository}) }}">
                 {{ repository }}
             </a>
         </h3>

@@ -9,7 +9,7 @@ class ApplicationTest extends WebTestCase
 {
     const TEST_REPOSITORY = 'git@github.com:gitonomy/foobar.git';
 
-    static public function createRepository()
+    public static function createRepository()
     {
         $tmp = sys_get_temp_dir().'gitonomybrowser_foobar';
         if (!is_dir($tmp)) {
@@ -45,6 +45,8 @@ class ApplicationTest extends WebTestCase
             array('/browser'),
             array('/browser/refs/heads/master'),
             array('/browser/commit/3c05a60d9522eb438d7be74f4ae51b4bcd0f697f'),
+            array('/browser/tree/master/path'),
+            array('/browser/tree/3c05a60d9522eb438d7be74f4ae51b4bcd0f697f/path/composer.json'),
         );
     }
 

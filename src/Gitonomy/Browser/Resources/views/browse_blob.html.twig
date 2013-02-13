@@ -1,0 +1,6 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <h3>Code</h3>
+    {{ git_blob(element, path) }}
+{% endblock %}

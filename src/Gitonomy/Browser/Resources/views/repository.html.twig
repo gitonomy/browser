@@ -1,12 +1,19 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-    <h3>Branches</h3>
-    {{ git_branches(repository) }}
+    {% if repository.references.branches %}
+        <h3>Branches</h3>
+        {{ git_branches(repository) }}
+    {% endif %}
 
-    <h3>Tags</h3>
-    {{ git_tags(repository) }}
+    {% if repository.references.tags %}
+        <h3>Tags</h3>
+        {{ git_tags(repository) }}
+    {% endif %}
+
+    <h3>Browse</h3>
+    <a href="{{ url('tree') }}">Browse the repository</a>
 
     <h3>Logs</h3>
-    {{ git_log(repository.log.setLimit(30), {query_url: path('log_ajax')}) }}
+    {{ git_log(repository.log.setLimit(30), {query_url: url('log_ajax')}) }}
 {% endblock %}

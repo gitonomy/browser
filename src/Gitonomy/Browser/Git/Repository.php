@@ -3,7 +3,6 @@
 namespace Gitonomy\Browser\Git;
 
 use Gitonomy\Git\Repository as BaseRepository;
-use Psr\Log\LoggerInterface;
 
 class Repository extends BaseRepository
 {

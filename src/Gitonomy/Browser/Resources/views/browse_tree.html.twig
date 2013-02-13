@@ -1,0 +1,6 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <h3>Browse</h3>
+    {{ git_tree(element, commit, path, revision)}}
+{% endblock %}
