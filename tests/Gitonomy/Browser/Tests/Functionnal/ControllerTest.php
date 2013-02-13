@@ -45,9 +45,8 @@ class ApplicationTest extends WebTestCase
             array('/browser'),
             array('/browser/refs/heads/master'),
             array('/browser/commit/3c05a60d9522eb438d7be74f4ae51b4bcd0f697f'),
-            array('/browser/browse/tree'),
-            array('/browser/browse/tree/master'),
-            array('/browser/browse/tree/3c05a60d9522eb438d7be74f4ae51b4bcd0f697f/composer.json'),
+            array('/browser/browse/tree/master/path'),
+            array('/browser/browse/tree/3c05a60d9522eb438d7be74f4ae51b4bcd0f697f/path/composer.json'),
         );
     }
 

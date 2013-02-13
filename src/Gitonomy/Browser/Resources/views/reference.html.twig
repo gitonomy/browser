@@ -9,7 +9,7 @@
             {% set hash = reference.name %}
         {% elseif reference is git_tag %}
             tag {{ reference.name }}
-            {% set hash = reference.name %}
+            {% set hash = reference.fullname %}
         {% elseif reference is git_stash %}
             tag {{ reference.name }}
         {% else %}

@@ -93,9 +93,10 @@ class Application extends BaseApplication
 
         /** Browse repository */
         $this
-            ->get('/{repository}/browse/tree/{reference}/{path}', 'controller.main:treeAction')
+            ->get('/{repository}/browse/tree/{reference}/path/{path}', 'controller.main:treeAction')
             ->bind('tree')
             ->value('reference', 'master')
+            ->assert('reference', '.*')
             ->value('path', '')
             ->assert('path', '.*')
         ;
