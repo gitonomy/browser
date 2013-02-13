@@ -44,6 +44,7 @@ class GitExtension extends \Twig_Extension
             new \Twig_SimpleFunction('git_commit_header',     array($this, 'renderCommitHeader'),     array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_diff',              array($this, 'renderDiff'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log',               array($this, 'renderLog'),              array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_tree',              array($this, 'renderTree'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log_rows',          array($this, 'renderLogRows'),          array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_render',            array($this, 'renderBlock'),            array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_repository_name',   array($this, 'renderRepositoryName'),   array('is_safe' => array('html'))),
@@ -160,6 +161,17 @@ class GitExtension extends \Twig_Extension
         ));
     }
 
+    public function renderTree(\Twig_Environment $env, Tree $tree, Commit $commit, $path = '', $revision = 'master')
+    {
+        return $this->renderBlock($env, 'tree', array(
+            'tree'        => $tree,
+            'parent_path' => substr($path, 0, strrpos($path, '/')),
+            'path'        => $path,
+            'revision'    => $revision,
+            'commit'      => $commit,
+        ));
+    }
+
     public function renderBlob($env, Blob $blob, $path = null)
     {
         if ($blob->isText()) {
@@ -183,7 +195,7 @@ class GitExtension extends \Twig_Extension
         $this->themes = array_merge($themes, $this->themes);
     }
 
-    public function renderBlock(\Twig_Environment $env, $block, $context = array())
+    public function renderBlock(\Twig_Environment $env, $block, $parameters = array())
     {
         foreach ($this->themes as $theme) {
             if ($theme instanceof \Twig_Template) {
@@ -192,7 +204,7 @@ class GitExtension extends \Twig_Extension
                 $tpl =  $env->loadTemplate($theme);
             }
             if ($tpl->hasBlock($block)) {
-                return $tpl->renderBlock($block, $context);
+                return $tpl->renderBlock($block, $parameters);
             }
         }
 

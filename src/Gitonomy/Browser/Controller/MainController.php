@@ -54,13 +54,13 @@ class MainController
         return $this->twig->render('log_ajax.html.twig', array('log' => $log));
     }
 
-    public function treeAction($repository, $reference, $path)
+    public function treeAction($repository, $revision, $path)
     {
         try {
-            $commit = $repository->getRevision($reference)->getResolved();
+            $commit = $repository->getRevision($revision)->getResolved();
             $tree = $commit->getTree();
         } catch (ReferenceNotFoundException $e) {
-            throw new NotFoundHttpException(sprintf('The reference "%s" is not valid', $reference), $e);
+            throw new NotFoundHttpException(sprintf('The revision "%s" is not valid', $revision), $e);
         }
 
         try {
@@ -69,22 +69,14 @@ class MainController
             throw new NotFoundHttpException(sprintf('Cannot find path "%s" for current commit "%s"', $path, $commit->getHash()), $e);
         }
 
-        $parameters = array(
-            'reference'     => $reference,
-            'commit'        => $commit,
-            'parent_path'   => substr($path, 0, strrpos($path, '/')),
-            'path'          => $path,
-        );
+        $template = $element instanceof Blob ? 'browse_blob.html.twig' : 'browse_tree.html.twig';
 
-        if ($element instanceof Blob) {
-            $parameters['blob'] = $element;
-            $tpl = 'browse_blob.html.twig';
-        } elseif ($element instanceof Tree) {
-            $parameters['tree'] = $element;
-            $tpl = 'browse_tree.html.twig';
-        }
-
-        return $this->twig->render($tpl, $parameters);
+        return $this->twig->render($template, array(
+            'commit'   => $commit,
+            'element'  => $element,
+            'path'     => $path,
+            'revision' => $revision,
+        ));
     }
 
     public function showCommitAction($repository, $hash)

@@ -233,3 +233,84 @@
     <pre><code>BINARY</code></pre>
 {% endspaceless %}
 {% endblock %}
+
+{% block tree %}
+{% spaceless %}
+<table class="table table-striped">
+    {{ git_render('tree_header') }}
+    <tbody>
+        {% if parent_path is not sameas(false) %}
+            <tr>
+                <td><i class="icon-folder-open"></i></td>
+                <td>
+                    <a href="{{ path('tree', {revision: revision, path: parent_path}) }}">
+                        ..
+                    </a>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endif %}
+        {% for name, data in tree.entries if data[1] is git_tree %}
+            {{ git_render('tree_row', {
+                commit:   commit,
+                data:     data,
+                is_dir:   true,
+                name:     name,
+                path:     path,
+                revision: revision,
+            }) }}
+        {% endfor %}
+        {% for name, data in tree.entries if data[1] is not git_tree %}
+            {{ git_render('tree_row', {
+                commit:   commit,
+                data:     data,
+                is_dir:   false,
+                name:     name,
+                path:     path,
+                revision: revision,
+            }) }}
+        {% endfor %}
+    </tbody>
+</table>
+{% endspaceless %}
+{% endblock %}
+
+{% block tree_header %}
+{% spaceless %}
+<thead>
+    <tr>
+        <th width="20"></td>
+        <th>{{ 'table.filename'|trans }}</th>
+        <th>{{ 'table.date'|trans }}</th>
+        <th>{{ 'table.last_commit'|trans }}</th>
+    </tr>
+</thead>
+{% endspaceless %}
+{% endblock %}
+
+{% block tree_row %}
+{% spaceless %}
+{% set pathLastModification = commit.lastModification(path~'/'~name) %}
+<tr>
+    <td>{% if is_dir is defined and is_dir %}<i class="icon-folder-open"></i>{% endif %}</td>
+    <td>
+        <a href="{{ path('tree', {revision: revision, path: (path ~ (path ? '/') ~ name)}) }}">
+            {{ name }}
+        </a>
+    </td>
+    <td>
+        {{ pathLastModification.getCommitterDate.format('Y-m-d H:i:s') }}
+    </td>
+    <td>
+        <a href="{{ path('commit', { hash: pathLastModification.hash }) }}">
+            {{ pathLastModification.fixedShortHash }}
+        </a>
+        {{ pathLastModification.shortMessage }}
+        <small>
+            ({{ pathLastModification.authorName }})
+        </small>
+    </td>
+</tr>
+{% endspaceless %}
+{% endblock %}
