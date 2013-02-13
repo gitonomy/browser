@@ -178,10 +178,10 @@
                 {% set old = change.rangeOldStart %}
                 {% set new = change.rangeNewStart %}
                 {%- for x, line in change.lines -%}
-                    <tr class="{{ line[0] == 1 ? 'new' : line[0] == -1 ? 'old' : '' }}">
+                    <tr class="{{ line[0] == 1 ? 'new' : line[0] == -1 ? 'old' }}">
                         <td class="old">{{ line[0] != 1 ? old : ' ' }}</td>
                         <td class="new">{{ line[0] != -1 ? new : ' ' }}</td>
-                        <td class="{{ line[0] == 1 ? 'plus' : line[0] == -1 ? 'minus' : '' }} source"><pre>{{ line[1] }}</pre></td>
+                        <td class="{{ line[0] == 1 ? 'plus' : line[0] == -1 ? 'minus' }} source"><pre>{{ line[1] }}</pre></td>
                     </tr>
                     {%- if line[0] == 1 -%}
                         {%- set new = new + 1 -%}
@@ -202,7 +202,7 @@
 {% spaceless %}
     <a href="{{ git_url(reference) }}">
         {% if reference is git_branch %}
-            <span class="ref branch{{ reference.isRemote ? ' remote' : '' }}">
+            <span class="ref branch{{ reference.isRemote ? ' remote' }}">
         {% elseif reference is git_tag %}
             <span class="ref tag">
         {% elseif reference is git_stash %}
