@@ -4,6 +4,11 @@ namespace Gitonomy\Browser\Controller;
 
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+use Gitonomy\Git\Blob;
+use Gitonomy\Git\Tree;
+use Gitonomy\Git\Exception\ReferenceNotFoundException;
 
 class MainController
 {
@@ -47,6 +52,31 @@ class MainController
         $log = $repository->getLog()->setOffset($offset)->setLimit($limit);
 
         return $this->twig->render('log_ajax.html.twig', array('log' => $log));
+    }
+
+    public function treeAction($repository, $revision, $path)
+    {
+        try {
+            $commit = $repository->getRevision($revision)->getResolved();
+            $tree = $commit->getTree();
+        } catch (ReferenceNotFoundException $e) {
+            throw new NotFoundHttpException(sprintf('The revision "%s" is not valid', $revision), $e);
+        }
+
+        try {
+            $element = $tree->resolvePath($path);
+        } catch (\Exception $e) {
+            throw new NotFoundHttpException(sprintf('Cannot find path "%s" for current commit "%s"', $path, $commit->getHash()), $e);
+        }
+
+        $template = $element instanceof Blob ? 'browse_blob.html.twig' : 'browse_tree.html.twig';
+
+        return $this->twig->render($template, array(
+            'commit'   => $commit,
+            'element'  => $element,
+            'path'     => $path,
+            'revision' => $revision,
+        ));
     }
 
     public function showCommitAction($repository, $hash)

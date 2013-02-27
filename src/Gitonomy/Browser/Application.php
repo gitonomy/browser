@@ -91,6 +91,16 @@ class Application extends BaseApplication
             ->bind('log_ajax')
         ;
 
+        /** Browse repository */
+        $this
+            ->get('/{repository}/tree/{revision}/path/{path}', 'controller.main:treeAction')
+            ->bind('tree')
+            ->value('revision', 'master')
+            ->assert('revision', '.*')
+            ->value('path', '')
+            ->assert('path', '.*')
+        ;
+
         /** Commit page */
         $this
             ->get('/{repository}/commit/{hash}', 'controller.main:showCommitAction')
