@@ -3,6 +3,7 @@
 namespace Gitonomy\Browser\Controller;
 
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -28,9 +29,19 @@ class MainController
         return $this->twig->render('repository_list.html.twig', array('repositories' => $this->repositories));
     }
 
-    public function showRepositoryAction()
+    public function repositoryAction()
     {
         return $this->twig->render('repository.html.twig');
+    }
+
+    public function logAction()
+    {
+        return $this->twig->render('log.html.twig');
+    }
+
+    public function statusAction()
+    {
+        return $this->twig->render('status.html.twig');
     }
 
     public function logAjaxAction(Request $request, $repository)

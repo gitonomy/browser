@@ -1,0 +1,9 @@
+{% extends "layout.html.twig" %}
+
+{% set menu_active='status' %}
+
+{% block content %}
+
+    {{ git_status(repository) }}
+
+{% endblock %}

@@ -1,5 +1,7 @@
 {% extends "layout.html.twig" %}
 
+{% set menu_active = 'tree' %}
+
 {% block content %}
     <h3>Code</h3>
     {{ git_blob(element, path) }}

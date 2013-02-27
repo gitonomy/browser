@@ -5,17 +5,23 @@
         <link rel="stylesheet" href="{{ app.request.basepath }}/css/git/diff.css" />
         <link rel="stylesheet" href="{{ app.request.basepath }}/css/git/log.css" />
         <link rel="stylesheet" href="{{ app.request.basepath }}/css/layout.css" />
-    </head>
+        <link rel="stylesheet" href="{{ app.request.basepath }}/vendor/bootstrap/css/bootstrap.min.css" />
     <body>
         <div class="gitonomy-browser-wrapper">
             <div class="gitonomy-browser">
-                <h1>
-                    {% if repository|default(false) %}
-                    <a class="project-name" href="{{ url('repository') }}">{{ repository.name }}</a>
-                    -
-                    {% endif %}
-                    <a href="{{ url('repositories') }}">gitonomy/browser</a>
-                </h1>
+                <div class="navbar navbar-static-top">
+                    <div class="navbar-inner">
+                        <ul class="nav">
+                            {% if repository|default(false) %}
+                                <a class="brand" href="{{ url('repositories') }}"><i class="icon-chevron-up"></i></a>
+                                <a class="brand" href="{{ url('repository') }}">{{ repository.name }}</a>
+                                <li {{ menu_active|default(null) == 'log' ? ' class="active"' : '' }}><a href="{{ url('log') }}">Log</a></li>
+                                <li {{ menu_active|default(null) == 'status' ? ' class="active"' : '' }}><a href="{{ url('status') }}">Status</a></li>
+                                <li {{ menu_active|default(null) == 'tree' ? ' class="active"' : '' }}><a href="{{ url('tree') }}">Source</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
                 <div class="gitonomy-browser-content">
                     {% block content '' %}
                 </div>
@@ -28,5 +34,7 @@
         </div>
         <script type="text/javascript" src="{{ app.request.basepath }}/vendor/jquery-1.9.0.min.js"></script>
         <script type="text/javascript" src="{{ app.request.basepath }}/js/log.js"></script>
+        <script type="text/javascript" src="{{ app.request.basepath }}/vendor/bootstrap/js/bootstrap.min.js"></script>
+    </head>
     </body>
 </html>

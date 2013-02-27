@@ -66,6 +66,27 @@
 {% endspaceless %}
 {% endblock %}
 
+{% block status %}
+{% spaceless %}
+    {% if diff_staged.files|length %}
+        <p>Staging area</p>
+        <ul>
+            {% for file in diff_staged.files %}
+                <li>{{ file.newName }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% if diff_pending.files|length %}
+        <p>Pending modifications</p>
+        <ul>
+            {% for file in diff_pending.files %}
+                <li>{{ file.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endspaceless %}
+{% endblock %}
+
 {% block author %}
 {% spaceless %}
     <span class="git-author">

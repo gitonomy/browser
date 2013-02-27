@@ -1,0 +1,7 @@
+{% extends "layout.html.twig" %}
+
+{% set menu_active='log' %}
+
+{% block content %}
+    {{ git_log(repository.log.setLimit(30), {query_url: url('log_ajax')}) }}
+{% endblock %}

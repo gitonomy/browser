@@ -46,6 +46,7 @@ class GitExtension extends \Twig_Extension
             new \Twig_SimpleFunction('git_log',               array($this, 'renderLog'),              array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_tree',              array($this, 'renderTree'),             array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_log_rows',          array($this, 'renderLogRows'),          array('is_safe' => array('html'), 'needs_environment' => true)),
+            new \Twig_SimpleFunction('git_status',            array($this, 'renderStatus'),           array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_render',            array($this, 'renderBlock'),            array('is_safe' => array('html'), 'needs_environment' => true)),
             new \Twig_SimpleFunction('git_repository_name',   array($this, 'renderRepositoryName'),   array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('git_tags',              array($this, 'renderTags'),             array('is_safe' => array('html'), 'needs_environment' => true)),
@@ -94,6 +95,16 @@ class GitExtension extends \Twig_Extension
     {
         return $this->renderBlock($env, 'commit_header', array(
             'commit' => $commit,
+        ));
+    }
+
+    public function renderStatus(\Twig_Environment $env, Repository $repository)
+    {
+        $wc = $repository->getWorkingCopy();
+
+        return $this->renderBlock($env, 'status', array(
+            'diff_staged'  => $wc->getDiffStaged(),
+            'diff_pending' => $wc->getDiffPending()
         ));
     }
 

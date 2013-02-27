@@ -81,8 +81,20 @@ class Application extends BaseApplication
 
         /** Landing page of a repository. */
         $this
-            ->get('/{repository}', 'controller.main:showRepositoryAction')
+            ->get('/{repository}', 'controller.main:repositoryAction')
             ->bind('repository')
+        ;
+
+        /** Status page */
+        $this
+            ->get('/{repository}/status', 'controller.main:statusAction')
+            ->bind('status')
+        ;
+
+        /** Log page */
+        $this
+            ->get('/{repository}/log', 'controller.main:logAction')
+            ->bind('log')
         ;
 
         /** Ajax Log entries */
