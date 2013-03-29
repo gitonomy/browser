@@ -1,7 +1,9 @@
 {
     "name": "gitonomy/browser",
+    "description": "A nice gui to browse git repositories",
+    "license": "MIT",
     "require": {
-        "gitonomy/gitlib"     : "dev-master",
+        "gitonomy/gitlib"     : "dev-master@dev",
         "silex/silex"         : "1.0.x@dev",
         "symfony/form"        : "~2.2",
         "symfony/locale"      : "~2.2",
@@ -20,6 +22,5 @@
         "psr-0": {
             "Gitonomy\\Browser": "src"
         }
-    },
-    "minimum-stability" : "dev"
+    }
 }
