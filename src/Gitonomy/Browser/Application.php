@@ -9,6 +9,7 @@ use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\WebProfilerServiceProvider;
+use SilexAssetic\AsseticExtension;
 
 use Gitonomy\Browser\Controller\MainController;
 use Gitonomy\Browser\EventListener\RepositoryListener;
@@ -47,6 +48,43 @@ class Application extends BaseApplication
             'twig.path'    => __DIR__.'/Resources/views',
             'debug'        => $this['debug'],
             'twig.options' => array('cache' => __DIR__.'/../../../cache/twig'),
+        ));
+
+        $this['assetic.path_to_web'] = __DIR__.'/../../../web/';
+        $this->register(new AsseticExtension(), array(
+            'assetic.options' => array(
+                'debug'            => $this['debug'],
+                'auto_dump_assets' => $this['debug'],
+            ),
+            'assetic.filters' => $this->protect(function($fm) {
+                $fm->set('lessphp', new \Assetic\Filter\LessphpFilter());
+            }),
+            'assetic.assets' => $this->protect(function($am, $fm) {
+                $am->set('styles', new \Assetic\Asset\AssetCache(
+                    new \Assetic\Asset\GlobAsset(
+                        array(
+                            __DIR__.'/../../../vendor/twitter/bootstrap/less/bootstrap.less',
+                            __DIR__.'/Resources/less/*.less',
+                        ),
+                        array($fm->get('lessphp'))
+                    ),
+                    new \Assetic\Cache\FilesystemCache(__DIR__.'/../../../cache/assetic')
+                ));
+                $am->get('styles')->setTargetPath('css/styles.css');
+
+                $am->set('scripts', new \Assetic\Asset\AssetCache(
+                    new \Assetic\Asset\GlobAsset(
+                        array(
+                            __DIR__.'/../../../web/vendor/jquery-1.9.0.min.js',
+                            __DIR__.'/../../../vendor/twitter/bootstrap/js/bootstrap-tooltip.js', // Should be loaded before other tw bootstrap assets
+                            __DIR__.'/../../../vendor/twitter/bootstrap/js/*.js',
+                            __DIR__.'/Resources/js/*.js',
+                        )
+                    ),
+                    new \Assetic\Cache\FilesystemCache(__DIR__.'/../../../cache/assetic')
+                ));
+                $am->get('scripts')->setTargetPath('js/scripts.js');
+            })
         ));
 
         if ($this['debug']) {

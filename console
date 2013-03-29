@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
+use Gitonomy\Browser\Application;
+
+$console = new ConsoleApplication('Gitonomy - Browser', '0.1');
+
+$app = new Application(__DIR__.'/config/dev.php');
+$app->boot();
+
+$console
+    ->register('assetic:dump')
+    ->setDescription('Dumps all assets to the filesystem')
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
+        $dumper = $app['assetic.dumper'];
+        if (isset($app['twig'])) {
+            $dumper->addTwigAssets();
+        }
+        $dumper->dumpAssets();
+        $output->writeln('<info>Dump finished</info>');
+    })
+;
+
+$console->run();
