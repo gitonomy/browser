@@ -210,16 +210,35 @@ class GitExtension extends \Twig_Extension
     {
         foreach ($this->themes as $theme) {
             if ($theme instanceof \Twig_Template) {
-                $tpl = $theme;
+                $template = $theme;
             } else {
-                $tpl =  $env->loadTemplate($theme);
+                $template =  $env->loadTemplate($theme);
             }
-            if ($tpl->hasBlock($block)) {
-                return $tpl->renderBlock($block, $parameters);
+            if ($template->hasBlock($block)) {
+                return $this->renderTemplateBlock($env, $template, $block, $parameters);
             }
         }
 
         throw new \InvalidArgumentException('Unable to find block '.$block);
+    }
+
+    private function renderTemplateBlock(\Twig_Environment $env, \Twig_Template $template, $block, array $context = array())
+    {
+        $context = $env->mergeGlobals($context);
+        $level = ob_get_level();
+        ob_start();
+        try {
+            $rendered = $template->renderBlock($block, $context);
+            ob_end_clean();
+
+            return $rendered;
+        } catch (\Exception $e) {
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
+
+            throw $e;
+        }
     }
 
     /**
