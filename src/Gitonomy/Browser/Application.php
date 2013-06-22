@@ -9,7 +9,7 @@ use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\WebProfilerServiceProvider;
-use SilexAssetic\AsseticExtension;
+use SilexAssetic\AsseticServiceProvider;
 
 use Gitonomy\Browser\Controller\MainController;
 use Gitonomy\Browser\EventListener\RepositoryListener;
@@ -50,23 +50,31 @@ class Application extends BaseApplication
             'twig.options' => array('cache' => __DIR__.'/../../../cache/twig'),
         ));
 
-        $this['assetic.path_to_web'] = __DIR__.'/../../../web/';
-        $this->register(new AsseticExtension(), array(
+        $this->register(new AsseticServiceProvider(), array(
+            'assetic.path_to_web' => __DIR__.'/../../../web/',
             'assetic.options' => array(
-                'debug'            => $this['debug'],
-                'auto_dump_assets' => $this['debug'],
-            ),
-            'assetic.filters' => $this->protect(function($fm) {
-                $fm->set('lessphp', new \Assetic\Filter\LessphpFilter());
-            }),
-            'assetic.assets' => $this->protect(function($am, $fm) {
+                'formulae_cache_dir' => __DIR__ . '/../../../cache/assetic',
+                'debug'              => $this['debug'],
+            )
+        ));
+
+        $this['assetic.filter_manager'] = $this->share(
+            $this->extend('assetic.filter_manager', function($fm, $app) {
+                $fm->set('less', new \Assetic\Filter\LessphpFilter());
+
+                return $fm;
+            })
+        );
+
+        $this['assetic.asset_manager'] = $this->share(
+            $this->extend('assetic.asset_manager', function($am, $app) {
                 $am->set('styles', new \Assetic\Asset\AssetCache(
                     new \Assetic\Asset\GlobAsset(
                         array(
                             __DIR__.'/../../../vendor/twitter/bootstrap/less/bootstrap.less',
                             __DIR__.'/Resources/less/*.less',
                         ),
-                        array($fm->get('lessphp'))
+                        array($app['assetic.filter_manager']->get('less'))
                     ),
                     new \Assetic\Cache\FilesystemCache(__DIR__.'/../../../cache/assetic')
                 ));
@@ -83,9 +91,11 @@ class Application extends BaseApplication
                     ),
                     new \Assetic\Cache\FilesystemCache(__DIR__.'/../../../cache/assetic')
                 ));
-                $am->get('scripts')->setTargetPath('js/scripts.js');
+                $am->get('scripts')->setTargetPath('js/script.js');
+                return $am;
             })
-        ));
+        );
+
 
         if ($this['debug']) {
             $this->register($profiler = new WebProfilerServiceProvider(), array(

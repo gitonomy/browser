@@ -3,24 +3,25 @@
     "description": "A nice gui to browse git repositories",
     "license": "MIT",
     "require": {
-        "gitonomy/gitlib"     : "dev-master@dev",
+        "gitonomy/gitlib"     : "dev-master",
+        "gitonomy/git-bundle" : "dev-master",
         "leafo/lessphp"       : "dev-master",
-        "mheap/silex-assetic" : "dev-master@dev",
+        "mheap/silex-assetic" : "dev-master",
         "silex/silex"         : "1.0.x@dev",
         "silex/web-profiler"  : "~1.0@dev",
-        "symfony/console"     : "~2.2",
-        "symfony/form"        : "~2.2",
-        "symfony/locale"      : "~2.2",
-        "symfony/translation" : "~2.2",
-        "symfony/twig-bridge" : "~2.2",
-        "symfony/validator"   : "~2.2",
+        "symfony/console"     : "2.3",
+        "symfony/form"        : "2.3",
+        "symfony/locale"      : "2.3",
+        "symfony/translation" : "2.3",
+        "symfony/twig-bridge" : "2.3",
+        "symfony/validator"   : "2.3",
         "twig/twig"           : "~1.12",
         "twitter/bootstrap"   : "2.3.1"
     },
     "require-dev": {
-        "symfony/browser-kit"  : "~2.2",
-        "symfony/css-selector" : "~2.2",
-        "symfony/dom-crawler"  : "~2.2"
+        "symfony/browser-kit"  : "~2.3",
+        "symfony/css-selector" : "~2.3",
+        "symfony/dom-crawler"  : "~2.3"
     },
     "autoload": {
         "psr-0": {
