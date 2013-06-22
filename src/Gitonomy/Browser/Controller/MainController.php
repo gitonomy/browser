@@ -67,8 +67,9 @@ class MainController
 
     public function treeAction($repository, $revision, $path)
     {
+        $revision = $repository->getRevision($revision);
         try {
-            $commit = $repository->getRevision($revision)->getResolved();
+            $commit = $revision->getCommit();
             $tree = $commit->getTree();
         } catch (ReferenceNotFoundException $e) {
             throw new NotFoundHttpException(sprintf('The revision "%s" is not valid', $revision), $e);
@@ -83,7 +84,6 @@ class MainController
         $template = $element instanceof Blob ? 'browse_blob.html.twig' : 'browse_tree.html.twig';
 
         return $this->twig->render($template, array(
-            'commit'   => $commit,
             'element'  => $element,
             'path'     => $path,
             'revision' => $revision,

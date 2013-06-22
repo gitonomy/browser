@@ -2,6 +2,12 @@
 
 namespace Gitonomy\Browser;
 
+use Gitonomy\Browser\Controller\MainController;
+use Gitonomy\Browser\EventListener\RepositoryListener;
+use Gitonomy\Browser\Git\Repository;
+use Gitonomy\Browser\Routing\GitUrlGenerator;
+use Gitonomy\Browser\Utils\RepositoriesFinder;
+use Gitonomy\Bundle\GitBundle\Twig\GitExtension;
 use Silex\Application as BaseApplication;
 use Silex\Provider\FormServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
@@ -10,13 +16,6 @@ use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\UrlGeneratorServiceProvider;
 use Silex\Provider\WebProfilerServiceProvider;
 use SilexAssetic\AsseticServiceProvider;
-
-use Gitonomy\Browser\Controller\MainController;
-use Gitonomy\Browser\EventListener\RepositoryListener;
-use Gitonomy\Browser\Git\Repository;
-use Gitonomy\Browser\Routing\GitUrlGenerator;
-use Gitonomy\Browser\Twig\GitExtension;
-use Gitonomy\Browser\Utils\RepositoriesFinder;
 
 class Application extends BaseApplication
 {
@@ -69,13 +68,20 @@ class Application extends BaseApplication
         $this['assetic.asset_manager'] = $this->share(
             $this->extend('assetic.asset_manager', function($am, $app) {
                 $am->set('styles', new \Assetic\Asset\AssetCache(
-                    new \Assetic\Asset\GlobAsset(
-                        array(
-                            __DIR__.'/../../../vendor/twitter/bootstrap/less/bootstrap.less',
-                            __DIR__.'/Resources/less/*.less',
+                    new \Assetic\Asset\AssetCollection(array(
+                        new \Assetic\Asset\GlobAsset(
+                            array(
+                                __DIR__.'/../../../vendor/twitter/bootstrap/less/bootstrap.less',
+                                __DIR__.'/Resources/less/*.less',
+                            ),
+                            array($app['assetic.filter_manager']->get('less'))
                         ),
-                        array($app['assetic.filter_manager']->get('less'))
-                    ),
+                        new \Assetic\Asset\GlobAsset(
+                            array(
+                                __DIR__.'/../../../vendor/gitonomy/git-bundle/Gitonomy/Bundle/GitBundle/Resources/public/css/*.css',
+                            )
+                        )
+                    )),
                     new \Assetic\Cache\FilesystemCache(__DIR__.'/../../../cache/assetic')
                 ));
                 $am->get('styles')->setTargetPath('css/styles.css');
@@ -86,12 +92,13 @@ class Application extends BaseApplication
                             __DIR__.'/../../../web/vendor/jquery-1.9.0.min.js',
                             __DIR__.'/../../../vendor/twitter/bootstrap/js/bootstrap-tooltip.js', // Should be loaded before other tw bootstrap assets
                             __DIR__.'/../../../vendor/twitter/bootstrap/js/*.js',
+                            __DIR__.'/../../../vendor/gitonomy/git-bundle/Gitonomy/Bundle/GitBundle/Resources/public/js/*.js',
                             __DIR__.'/Resources/js/*.js',
                         )
                     ),
                     new \Assetic\Cache\FilesystemCache(__DIR__.'/../../../cache/assetic')
                 ));
-                $am->get('scripts')->setTargetPath('js/script.js');
+                $am->get('scripts')->setTargetPath('js/scripts.js');
                 return $am;
             })
         );
@@ -106,7 +113,9 @@ class Application extends BaseApplication
 
         // Gitonomy\Browser Service Provider
         $urlGenerator = new GitUrlGenerator($this['url_generator'], $this['repositories']);
-        $this['twig']->addExtension(new GitExtension($urlGenerator, array('git/default_theme.html.twig')));
+        $this['twig']->addExtension(new GitExtension($urlGenerator, array('@GitonomyGitBundle/default_theme.html.twig')));
+
+        $this['twig.loader.filesystem']->addPath(__DIR__.'/../../../vendor/gitonomy/git-bundle/Gitonomy/Bundle/GitBundle/Resources/views', 'GitonomyGitBundle');
 
         // Register the Repository Listener
         $this['dispatcher']->addSubscriber(new RepositoryListener($this['request_context'], $this['twig'], $this['repositories']));

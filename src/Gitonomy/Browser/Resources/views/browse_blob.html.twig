@@ -3,6 +3,6 @@
 {% set menu_active = 'tree' %}
 
 {% block content %}
-    <h3>Code</h3>
-    {{ git_blob(element, path) }}
+    <h3>{{ git_pathcrumb(revision, path) }}</h3>
+    {{ git_blob(element) }}
 {% endblock %}

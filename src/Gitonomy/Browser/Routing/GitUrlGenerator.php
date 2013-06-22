@@ -2,12 +2,12 @@
 
 namespace Gitonomy\Browser\Routing;
 
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-
+use Gitonomy\Browser\Git\Repository;
+use Gitonomy\Bundle\GitBundle\Routing\GitUrlGeneratorInterface;
 use Gitonomy\Git\Commit;
 use Gitonomy\Git\Reference;
-
-use Gitonomy\Browser\Git\Repository;
+use Gitonomy\Git\Revision;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class GitUrlGenerator implements GitUrlGeneratorInterface
 {
@@ -38,6 +38,12 @@ class GitUrlGenerator implements GitUrlGeneratorInterface
     {
         return $this->generator->generate('reference', array('fullname' => $reference->getFullname(), 'repository' => $this->getName($reference->getRepository())));
     }
+
+    public function generateTreeUrl(Revision $revision, $path = '')
+    {
+        return $this->generator->generate('tree', array('revision' => $revision->getRevision(), 'path' => $path, 'repository' => $this->getName($revision->getRepository())));
+    }
+
 
     private function getName(Repository $repository)
     {

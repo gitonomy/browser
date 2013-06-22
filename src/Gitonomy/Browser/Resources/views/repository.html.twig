@@ -4,12 +4,12 @@
 
     {% if repository.references.branches %}
         <h3>Branches</h3>
-        {{ git_branches(repository) }}
+        {{ git_label(repository.references.branches) }}
     {% endif %}
 
     {% if repository.references.tags %}
         <h3>Tags</h3>
-        {{ git_tags(repository) }}
+        {{ git_label(repository.references.tags) }}
     {% endif %}
 
 {% endblock %}
