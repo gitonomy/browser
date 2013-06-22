@@ -42,7 +42,7 @@ class RepositoriesFinder
     /**
      * Ported from https://github.com/klaussilveira/gitter
      */
-    private function recurseDirectory($path)
+    private function recurseDirectory($path, $maxDepth = 3)
     {
         $dirs = new \DirectoryIterator($path);
 
@@ -66,7 +66,9 @@ class RepositoriesFinder
                 continue;
             }
 
-            $repositories = array_merge($repositories, $this->recurseDirectory($dir->getPathname()));
+            if ($maxDepth > 0) {
+                $repositories = array_merge($repositories, $this->recurseDirectory($dir->getPathname(), $maxDepth - 1));
+            }
         }
 
         return $repositories;
